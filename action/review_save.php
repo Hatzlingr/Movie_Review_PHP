@@ -1,0 +1,37 @@
+<?php
+// actions/review_save.php
+declare(strict_types=1);
+
+require_once __DIR__ . '/../app/helpers/functions.php';
+require_once __DIR__ . '/../app/helpers/flash.php';
+require_once __DIR__ . '/../app/helpers/auth.php';
+require_once __DIR__ . '/../app/config/db.php';
+
+ensure_session();
+require_login();
+
+$redirect = $_POST['redirect'] ?? '/public/index.php';
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    redirect($redirect);
+}
+
+$movieId    = (int) ($_POST['movie_id']    ?? 0);
+$reviewText = trim($_POST['review_text']   ?? '');
+
+if ($movieId <= 0 || $reviewText === '') {
+    flash_set('danger', 'Review text cannot be empty.');
+    redirect($redirect);
+}
+
+$userId = current_user()['id'];
+
+$stmt = $pdo->prepare(
+    "INSERT INTO reviews (user_id, movie_id, review_text)
+     VALUES (:u, :m, :t)
+     ON DUPLICATE KEY UPDATE review_text = VALUES(review_text), created_at = created_at"
+);
+$stmt->execute([':u' => $userId, ':m' => $movieId, ':t' => $reviewText]);
+
+flash_set('success', 'Your review has been saved.');
+redirect($redirect);
