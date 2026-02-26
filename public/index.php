@@ -65,8 +65,9 @@ function watchlistStatusBtn(string $status): string
 
 // ── Page title & header ──────────────────────────────────────────────────────
 $pageTitle        = $q ? 'Search: ' . $q : 'ELITISRIPIW';
- // index.php manages its own layout
+// index.php manages its own layout
 require_once __DIR__ . '/../app/views/partials/header.php';
+require_once __DIR__ . '/../app/views/partials/navbar.php';
 ?>
 
 <!-- ===== HERO ===== -->
@@ -209,7 +210,7 @@ $heroBanner = !empty($heroMovie['banner_path'])
     </div>
 
 </div>
-
+<?php require_once __DIR__ . '/../app/views/partials/footer.php'; ?>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     function scrollSection(btn, dir) {

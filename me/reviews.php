@@ -54,6 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $pageTitle = 'My Reviews';
 require_once __DIR__ . '/../app/views/partials/header.php';
+require_once __DIR__ . '/../app/views/partials/navbar.php';
 ?>
 
 <main class="container mt-5 pt-5 pb-5">
@@ -122,4 +123,4 @@ require_once __DIR__ . '/../app/views/partials/header.php';
         </div>
     <?php endforeach; ?>
 </main>
-    <?php require_once __DIR__ . '/../app/views/partials/footer.php'; ?>
+<?php require_once __DIR__ . '/../app/views/partials/footer.php'; ?>

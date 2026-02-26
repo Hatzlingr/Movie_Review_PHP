@@ -15,7 +15,7 @@ if ($id <= 0) {
     redirect('/admin/movies/index.php');
 }
 
-$stmt = $pdo->prepare("SELECT poster_path FROM movies WHERE id = :id");
+$stmt = $pdo->prepare("SELECT poster_path, banner_path FROM movies WHERE id = :id");
 $stmt->execute([':id' => $id]);
 $movie = $stmt->fetch();
 
@@ -27,6 +27,11 @@ if (!$movie) {
 // Delete poster file
 if ($movie['poster_path'] && file_exists(__DIR__ . '/../../public/' . $movie['poster_path'])) {
     @unlink(__DIR__ . '/../../public/' . $movie['poster_path']);
+}
+
+// Delete banner file
+if ($movie['banner_path'] && file_exists(__DIR__ . '/../../public/' . $movie['banner_path'])) {
+    @unlink(__DIR__ . '/../../public/' . $movie['banner_path']);
 }
 
 $del = $pdo->prepare("DELETE FROM movies WHERE id = :id");

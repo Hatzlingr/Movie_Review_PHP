@@ -1,3 +1,16 @@
 /* ── Admin Panel Styles ───────────────────────────────────── */
 /* Tempat CSS khusus halaman admin — sidebar, table, dashboard, dll */
 
+.admin-sidebar {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    flex-shrink: 0;
+}
+
+.admin-layout {
+    align-items: flex-start;
+    min-height: 100vh;
+}
+

@@ -20,80 +20,71 @@ $movies = $pdo->query(
 )->fetchAll();
 
 $pageTitle = 'Manage Movies';
-require_once __DIR__ . '/../../app/views/partials/header.php';
+require_once __DIR__ . '/../../app/views/partials/header_admin.php';
 ?>
 
-<div class="d-flex gap-4 align-items-start">
-    <?php require_once __DIR__ . '/../../app/views/partials/sidebar_admin.php'; ?>
-
-    <div class="flex-grow-1">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h4 class="fw-bold mb-0"><i class="bi bi-camera-video"></i> Movies</h4>
-            <a href="/admin/movies/create.php" class="btn btn-primary btn-sm">
-                <i class="bi bi-plus-lg"></i> Add Movie
-            </a>
-        </div>
-
-        <?php if (empty($movies)): ?>
-            <div class="alert alert-info">No movies yet.</div>
-        <?php else: ?>
-            <div class="table-responsive">
-                <table class="table table-hover align-middle">
-                    <thead class="table-light">
-                        <tr>
-                            <th>Poster</th>
-                            <th>Title</th>
-                            <th>Year</th>
-                            <th>Duration</th>
-                            <th>Rating</th>
-                            <th>Added</th>
-                            <th class="text-end">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($movies as $m): ?>
-                            <tr>
-                                <td style="width:56px">
-                                    <?php if ($m['poster_path'] && file_exists(__DIR__ . '/../../public/' . $m['poster_path'])): ?>
-                                        <img src="/public/<?= e($m['poster_path']) ?>" style="width:44px;height:66px;object-fit:cover;border-radius:4px" alt="">
-                                    <?php else: ?>
-                                        <div class="bg-secondary text-white d-flex align-items-center justify-content-center"
-                                            style="width:44px;height:66px;border-radius:4px;font-size:1.2rem">
-                                            <i class="bi bi-film"></i>
-                                        </div>
-                                    <?php endif; ?>
-                                </td>
-                                <td class="fw-semibold"><?= e($m['title']) ?></td>
-                                <td class="text-muted"><?= e($m['release_year'] ?? '—') ?></td>
-                                <td class="text-muted"><?= $m['duration_minutes'] ? e($m['duration_minutes']) . ' min' : '—' ?></td>
-                                <td>
-                                    <?php if ($m['avg_rating']): ?>
-                                        <span class="score-badge"><i class="bi bi-star-fill"></i> <?= e($m['avg_rating']) ?></span>
-                                        <small class="text-muted">(<?= (int)$m['total_ratings'] ?>)</small>
-                                    <?php else: ?>
-                                        <span class="text-muted small">—</span>
-                                    <?php endif; ?>
-                                </td>
-                                <td class="text-muted small"><?= e(substr($m['created_at'], 0, 10)) ?></td>
-                                <td class="text-end">
-                                    <div class="btn-group btn-group-sm">
-                                        <a href="/admin/movies/edit.php?id=<?= (int)$m['id'] ?>" class="btn btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
-                                        <a href="/admin/movies/assign_genres.php?id=<?= (int)$m['id'] ?>" class="btn btn-outline-secondary" title="Genres"><i class="bi bi-tags"></i></a>
-                                        <a href="/admin/movies/assign_actors.php?id=<?= (int)$m['id'] ?>" class="btn btn-outline-secondary" title="Actors"><i class="bi bi-person-video3"></i></a>
-                                        <a href="/admin/movies/assign_directors.php?id=<?= (int)$m['id'] ?>" class="btn btn-outline-secondary" title="Directors"><i class="bi bi-megaphone"></i></a>
-                                        <a href="/admin/movies/delete.php?id=<?= (int)$m['id'] ?>" class="btn btn-outline-danger" title="Delete"
-                                            onclick="return confirm('Delete <?= e(addslashes($m['title'])) ?>?')">
-                                            <i class="bi bi-trash"></i>
-                                        </a>
-                                    </div>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            </div>
-        <?php endif; ?>
-    </div>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0"><i class="bi bi-camera-video"></i> Movies</h4>
+    <a href="/admin/movies/create.php" class="btn btn-primary btn-sm">
+        <i class="bi bi-plus-lg"></i> Add Movie
+    </a>
 </div>
 
-<?php require_once __DIR__ . '/../../app/views/partials/footer.php'; ?>
+<?php if (empty($movies)): ?>
+    <div class="alert alert-info">No movies yet.</div>
+<?php else: ?>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>Poster</th>
+                    <th>Title</th>
+                    <th>Year</th>
+                    <th>Duration</th>
+                    <th>Rating</th>
+                    <th>Added</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php foreach ($movies as $m): ?>
+                    <tr>
+                        <td style="width:56px">
+                            <?php if ($m['poster_path'] && file_exists(__DIR__ . '/../../public/' . $m['poster_path'])): ?>
+                                <img src="/public/<?= e($m['poster_path']) ?>" style="width:44px;height:66px;object-fit:cover;border-radius:4px" alt="">
+                            <?php else: ?>
+                                <div class="bg-secondary text-white d-flex align-items-center justify-content-center"
+                                    style="width:44px;height:66px;border-radius:4px;font-size:1.2rem">
+                                    <i class="bi bi-film"></i>
+                                </div>
+                            <?php endif; ?>
+                        </td>
+                        <td class="fw-semibold"><?= e($m['title']) ?></td>
+                        <td class="text-muted"><?= e($m['release_year'] ?? '—') ?></td>
+                        <td class="text-muted"><?= $m['duration_minutes'] ? e($m['duration_minutes']) . ' min' : '—' ?></td>
+                        <td>
+                            <?php if ($m['avg_rating']): ?>
+                                <span class="score-badge"><i class="bi bi-star-fill"></i> <?= e($m['avg_rating']) ?></span>
+                                <small class="text-muted">(<?= (int)$m['total_ratings'] ?>)</small>
+                            <?php else: ?>
+                                <span class="text-muted small">—</span>
+                            <?php endif; ?>
+                        </td>
+                        <td class="text-muted small"><?= e(substr($m['created_at'], 0, 10)) ?></td>
+                        <td class="text-end">
+                            <div class="btn-group btn-group-sm">
+                                <a href="/admin/movies/edit.php?id=<?= (int)$m['id'] ?>" class="btn btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
+                                <a href="/admin/movies/delete.php?id=<?= (int)$m['id'] ?>" class="btn btn-outline-danger" title="Delete"
+                                    onclick="return confirm('Delete <?= e(addslashes($m['title'])) ?>?')">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+<?php endif; ?>
+
+<?php require_once __DIR__ . '/../../app/views/partials/footer_admin.php'; ?>

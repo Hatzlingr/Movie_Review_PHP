@@ -45,55 +45,49 @@ $actors = $pdo->query(
 )->fetchAll();
 
 $pageTitle = 'Manage Actors';
-require_once __DIR__ . '/../../app/views/partials/header.php';
+require_once __DIR__ . '/../../app/views/partials/header_admin.php';
 ?>
 
-<div class="d-flex gap-4 align-items-start">
-    <?php require_once __DIR__ . '/../../app/views/partials/sidebar_admin.php'; ?>
+<h4 class="fw-bold mb-4"><i class="bi bi-person-video3"></i> Actors</h4>
 
-    <div class="flex-grow-1" style="max-width:600px">
-        <h4 class="fw-bold mb-4"><i class="bi bi-person-video3"></i> Actors</h4>
-
-        <div class="card shadow-sm border-0 mb-4">
-            <div class="card-body">
-                <h6 class="fw-semibold mb-3">Add Actor</h6>
-                <?php foreach ($errors as $err): ?><div class="alert alert-danger py-2"><?= e($err) ?></div><?php endforeach; ?>
-                <form method="post" class="d-flex gap-2">
-                    <input type="hidden" name="action" value="create">
-                    <input type="text" name="name" class="form-control" placeholder="Actor name" required autofocus maxlength="150">
-                    <button type="submit" class="btn btn-primary btn-sm px-3">Add</button>
-                </form>
-            </div>
-        </div>
-
-        <?php if (empty($actors)): ?>
-            <div class="alert alert-info">No actors yet.</div>
-        <?php else: ?>
-            <table class="table table-hover align-middle">
-                <thead class="table-light">
-                    <tr>
-                        <th>Name</th>
-                        <th>Movies</th>
-                        <th class="text-end">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($actors as $a): ?>
-                        <tr>
-                            <td><?= e($a['name']) ?></td>
-                            <td><span class="badge bg-secondary"><?= (int)$a['movie_count'] ?></span></td>
-                            <td class="text-end">
-                                <a href="?delete=<?= (int)$a['id'] ?>" class="btn btn-sm btn-outline-danger"
-                                    onclick="return confirm('Delete actor: <?= e(addslashes($a['name'])) ?>?')">
-                                    <i class="bi bi-trash"></i>
-                                </a>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        <?php endif; ?>
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body">
+        <h6 class="fw-semibold mb-3">Add Actor</h6>
+        <?php foreach ($errors as $err): ?><div class="alert alert-danger py-2"><?= e($err) ?></div><?php endforeach; ?>
+        <form method="post" class="d-flex gap-2">
+            <input type="hidden" name="action" value="create">
+            <input type="text" name="name" class="form-control" placeholder="Actor name" required autofocus maxlength="150">
+            <button type="submit" class="btn btn-primary btn-sm px-3">Add</button>
+        </form>
     </div>
 </div>
 
-<?php require_once __DIR__ . '/../../app/views/partials/footer.php'; ?>
+<?php if (empty($actors)): ?>
+    <div class="alert alert-info">No actors yet.</div>
+<?php else: ?>
+    <table class="table table-hover align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>Name</th>
+                <th>Movies</th>
+                <th class="text-end">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($actors as $a): ?>
+                <tr>
+                    <td><?= e($a['name']) ?></td>
+                    <td><span class="badge bg-secondary"><?= (int)$a['movie_count'] ?></span></td>
+                    <td class="text-end">
+                        <a href="?delete=<?= (int)$a['id'] ?>" class="btn btn-sm btn-outline-danger"
+                            onclick="return confirm('Delete actor: <?= e(addslashes($a['name'])) ?>?')">
+                            <i class="bi bi-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+<?php endif; ?>
+
+<?php require_once __DIR__ . '/../../app/views/partials/footer_admin.php'; ?>
