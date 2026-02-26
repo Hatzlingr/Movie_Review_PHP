@@ -52,74 +52,74 @@ $statusLabels = [
 $pageTitle = 'My Watchlist';
 require_once __DIR__ . '/../app/views/partials/header.php';
 ?>
-
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h4 class="fw-bold mb-0"><i class="bi bi-bookmark-star"></i> My Watchlist</h4>
-    <span class="badge bg-secondary fs-6"><?= count($watchlist) ?> title<?= count($watchlist) !== 1 ? 's' : '' ?></span>
-</div>
-
-<?php if (empty($watchlist)): ?>
-    <div class="alert alert-info">Your watchlist is empty. <a href="/public/index.php">Browse movies</a> to add some!</div>
-<?php else: ?>
-    <div class="table-responsive">
-        <table class="table table-hover align-middle">
-            <thead class="table-light">
-                <tr>
-                    <th>Poster</th>
-                    <th>Title</th>
-                    <th>Year</th>
-                    <th>Status</th>
-                    <th>Added</th>
-                    <th class="text-end">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php foreach ($watchlist as $row): ?>
-                    <tr>
-                        <td style="width:60px">
-                            <?php if ($row['poster_path'] && file_exists(__DIR__ . '/../public/' . $row['poster_path'])): ?>
-                                <img src="/public/<?= e($row['poster_path']) ?>"
-                                    alt="<?= e($row['title']) ?>"
-                                    style="width:48px;height:72px;object-fit:cover;border-radius:4px">
-                            <?php else: ?>
-                                <div class="bg-secondary d-flex align-items-center justify-content-center text-white"
-                                    style="width:48px;height:72px;border-radius:4px;font-size:1.4rem">
-                                    <i class="bi bi-film"></i>
-                                </div>
-                            <?php endif; ?>
-                        </td>
-                        <td>
-                            <a href="/public/movie.php?id=<?= (int)$row['movie_id'] ?>" class="fw-semibold text-decoration-none">
-                                <?= e($row['title']) ?>
-                            </a>
-                        </td>
-                        <td class="text-muted"><?= e($row['release_year'] ?? '—') ?></td>
-                        <td>
-                            <form method="post" class="d-flex align-items-center gap-2">
-                                <input type="hidden" name="movie_id" value="<?= (int)$row['movie_id'] ?>">
-                                <select name="status" class="form-select form-select-sm" style="width:auto"
-                                    onchange="this.form.submit()">
-                                    <?php foreach ($statusLabels as $val => $info): ?>
-                                        <option value="<?= $val ?>" <?= $row['status'] === $val ? 'selected' : '' ?>>
-                                            <?= $info['label'] ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </form>
-                        </td>
-                        <td class="text-muted small"><?= e(substr($row['created_at'], 0, 10)) ?></td>
-                        <td class="text-end">
-                            <a href="/action/watchlist_remove.php?movie_id=<?= (int)$row['movie_id'] ?>&redirect=<?= urlencode('/me/watchlist.php') ?>"
-                                class="btn btn-sm btn-outline-danger"
-                                onclick="return confirm('Remove from watchlist?')">
-                                <i class="bi bi-trash"></i> Remove
-                            </a>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-            </tbody>
-        </table>
+<main class="container mt-5 pt-5 pb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="fw-bold mb-0"><i class="bi bi-bookmark-star"></i> My Watchlist</h4>
+        <span class="badge bg-secondary fs-6"><?= count($watchlist) ?> title<?= count($watchlist) !== 1 ? 's' : '' ?></span>
     </div>
-<?php endif; ?>
 
+    <?php if (empty($watchlist)): ?>
+        <div class="alert alert-info">Your watchlist is empty. <a href="/public/index.php">Browse movies</a> to add some!</div>
+    <?php else: ?>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th>Poster</th>
+                        <th>Title</th>
+                        <th>Year</th>
+                        <th>Status</th>
+                        <th>Added</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($watchlist as $row): ?>
+                        <tr>
+                            <td style="width:60px">
+                                <?php if ($row['poster_path'] && file_exists(__DIR__ . '/../public/' . $row['poster_path'])): ?>
+                                    <img src="/public/<?= e($row['poster_path']) ?>"
+                                        alt="<?= e($row['title']) ?>"
+                                        style="width:48px;height:72px;object-fit:cover;border-radius:4px">
+                                <?php else: ?>
+                                    <div class="bg-secondary d-flex align-items-center justify-content-center text-white"
+                                        style="width:48px;height:72px;border-radius:4px;font-size:1.4rem">
+                                        <i class="bi bi-film"></i>
+                                    </div>
+                                <?php endif; ?>
+                            </td>
+                            <td>
+                                <a href="/public/movie.php?id=<?= (int)$row['movie_id'] ?>" class="fw-semibold text-decoration-none">
+                                    <?= e($row['title']) ?>
+                                </a>
+                            </td>
+                            <td class="text-muted"><?= e($row['release_year'] ?? '—') ?></td>
+                            <td>
+                                <form method="post" class="d-flex align-items-center gap-2">
+                                    <input type="hidden" name="movie_id" value="<?= (int)$row['movie_id'] ?>">
+                                    <select name="status" class="form-select form-select-sm" style="width:auto"
+                                        onchange="this.form.submit()">
+                                        <?php foreach ($statusLabels as $val => $info): ?>
+                                            <option value="<?= $val ?>" <?= $row['status'] === $val ? 'selected' : '' ?>>
+                                                <?= $info['label'] ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </form>
+                            </td>
+                            <td class="text-muted small"><?= e(substr($row['created_at'], 0, 10)) ?></td>
+                            <td class="text-end">
+                                <a href="/action/watchlist_remove.php?movie_id=<?= (int)$row['movie_id'] ?>&redirect=<?= urlencode('/me/watchlist.php') ?>"
+                                    class="btn btn-sm btn-outline-danger"
+                                    onclick="return confirm('Remove from watchlist?')">
+                                    <i class="bi bi-trash"></i> Remove
+                                </a>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
+    <?php endif; ?>
+</main>
 <?php require_once __DIR__ . '/../app/views/partials/footer.php'; ?>

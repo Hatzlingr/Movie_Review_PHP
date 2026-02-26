@@ -28,9 +28,8 @@ if ($movieId <= 0 || !in_array($status, $allowed, true)) {
 $userId = current_user()['id'];
 
 $stmt = $pdo->prepare(
-    "INSERT INTO watchlists (user_id, movie_id, status)
-     VALUES (:u, :m, :s)
-     ON DUPLICATE KEY UPDATE status = VALUES(status)"
+    "INSERT INTO watchlists (user_id, movie_id, status) VALUES (:u, :m, :s)
+     AS new_wl ON DUPLICATE KEY UPDATE status = new_wl.status"
 );
 $stmt->execute([':u' => $userId, ':m' => $movieId, ':s' => $status]);
 

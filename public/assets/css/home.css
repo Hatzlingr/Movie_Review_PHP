@@ -1,0 +1,216 @@
+/* ── Home: Sections, Movie Card, Review Card ──────────────── */
+
+/* Section Header */
+.section-header {
+    border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+    padding-bottom: 8px;
+    margin-bottom: 20px;
+    font-weight: 700;
+    font-size: 1.2rem;
+}
+
+/* Horizontal Scroll */
+.scroll-wrapper {
+    position: relative;
+}
+
+.horizontal-scroll {
+    display: flex;
+    gap: 15px;
+    overflow-x: auto;
+    padding-bottom: 15px;
+    scrollbar-width: none;
+}
+
+.horizontal-scroll::-webkit-scrollbar {
+    display: none;
+}
+
+.nav-arrow-list {
+    position: absolute;
+    right: -20px;
+    top: 40%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    background-color: white;
+    color: black;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+    z-index: 5;
+    cursor: pointer;
+}
+
+/* Movie Card */
+.movie-card {
+    background-color: var(--bg-card);
+    border-radius: 12px;
+    padding: 12px;
+    min-width: 165px;
+    max-width: 165px;
+    display: flex;
+    flex-direction: column;
+}
+
+.movie-card img {
+    border-radius: 8px;
+    width: 100%;
+    height: 220px;
+    object-fit: cover;
+    margin-bottom: 10px;
+}
+
+.movie-title {
+    font-size: 0.85rem;
+    font-weight: 700;
+    margin-bottom: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.movie-rating {
+    font-size: 0.8rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.movie-rating i {
+    color: #f1c40f;
+    font-size: 0.7rem;
+    margin-left: 2px;
+}
+
+.btn-card {
+    background: transparent;
+    border: 1px solid var(--btn-outline);
+    color: white;
+    border-radius: 20px;
+    padding: 6px 0;
+    font-size: 0.7rem;
+    font-weight: 600;
+    width: 100%;
+    margin-bottom: 6px;
+    transition: 0.2s;
+}
+
+.btn-card:hover {
+    background-color: var(--btn-outline);
+}
+
+/* Watchlist Status Buttons */
+.btn-plan {
+    background-color: #bd6c74;
+    border: none;
+    color: white;
+    border-radius: 20px;
+    padding: 6px 0;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.btn-watching {
+    background-color: #7d708d;
+    border: none;
+    color: white;
+    border-radius: 20px;
+    padding: 6px 0;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.btn-completed {
+    background-color: #40c6a5;
+    border: none;
+    color: white;
+    border-radius: 20px;
+    padding: 6px 0;
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.add-more-card {
+    background-color: var(--bg-card);
+    border-radius: 12px;
+    min-width: 165px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    min-height: 340px;
+}
+
+/* Review Card */
+.review-card {
+    background-color: var(--bg-card);
+    border-radius: 15px;
+    padding: 20px;
+    min-width: 300px;
+    max-width: 300px;
+}
+
+.review-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+}
+
+.reviewer-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.reviewer-avatar {
+    width: 40px;
+    height: 40px;
+    background-color: #e0e0e0;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.reviewer-name {
+    font-weight: 700;
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+.review-date {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin: 0;
+}
+
+.review-score {
+    font-weight: 700;
+    font-size: 1.1rem;
+    white-space: nowrap;
+}
+
+.review-text {
+    font-size: 0.85rem;
+    color: #d1cde0;
+    display: -webkit-box;
+    -webkit-line-clamp: 6;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    line-height: 1.5;
+    margin-bottom: 15px;
+}
+
+.review-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 15px;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+}
+
+.review-actions i {
+    cursor: pointer;
+}

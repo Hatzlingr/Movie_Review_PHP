@@ -1,0 +1,55 @@
+/* ── Navbar ───────────────────────────────────────────────── */
+
+.navbar-custom {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: 10;
+    padding: 20px 0;
+}
+
+.search-wrapper {
+    position: relative;
+}
+
+.search-wrapper .fa-search {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.search-input {
+    background-color: rgba(255, 255, 255, 0.2);
+    border: none;
+    border-radius: 20px;
+    padding: 5px 15px 5px 40px;
+    color: white;
+    width: 250px;
+}
+
+.search-input::placeholder {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.search-input:focus {
+    background-color: rgba(255, 255, 255, 0.3);
+    color: white;
+    box-shadow: none;
+    outline: none;
+}
+
+.nav-auth a {
+    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.85rem;
+    text-decoration: none;
+    padding: 4px 10px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 20px;
+    transition: 0.2s;
+}
+
+.nav-auth a:hover {
+    background: rgba(255, 255, 255, 0.15);
+}

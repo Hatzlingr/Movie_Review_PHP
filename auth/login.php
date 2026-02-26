@@ -42,39 +42,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $pageTitle = 'Login';
 require_once __DIR__ . '/../app/views/partials/header.php';
 ?>
+<main class="container mt-5 pt-5 pb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
 
-<div class="row justify-content-center">
-    <div class="col-md-5">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h4 class="card-title fw-bold mb-4"><i class="bi bi-box-arrow-in-right"></i> Log In</h4>
 
-        <div class="card shadow-sm">
-            <div class="card-body p-4">
-                <h4 class="card-title fw-bold mb-4"><i class="bi bi-box-arrow-in-right"></i> Log In</h4>
+                    <?php foreach ($errors as $err): ?>
+                        <div class="alert alert-danger py-2"><?= e($err) ?></div>
+                    <?php endforeach; ?>
 
-                <?php foreach ($errors as $err): ?>
-                    <div class="alert alert-danger py-2"><?= e($err) ?></div>
-                <?php endforeach; ?>
+                    <form method="post" novalidate>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Username or Email</label>
+                            <input type="text" name="login" class="form-control"
+                                value="<?= e($login) ?>" required autofocus>
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Password</label>
+                            <input type="password" name="password" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Log In</button>
+                    </form>
 
-                <form method="post" novalidate>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Username or Email</label>
-                        <input type="text" name="login" class="form-control"
-                            value="<?= e($login) ?>" required autofocus>
-                    </div>
-                    <div class="mb-4">
-                        <label class="form-label fw-semibold">Password</label>
-                        <input type="password" name="password" class="form-control" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">Log In</button>
-                </form>
-
-                <hr>
-                <p class="text-center mb-0">Don't have an account?
-                    <a href="/auth/register.php">Register</a>
-                </p>
+                    <hr>
+                    <p class="text-center mb-0">Don't have an account?
+                        <a href="/auth/register.php">Register</a>
+                    </p>
+                </div>
             </div>
-        </div>
 
+        </div>
     </div>
-</div>
+</main>
 
 <?php require_once __DIR__ . '/../app/views/partials/footer.php'; ?>

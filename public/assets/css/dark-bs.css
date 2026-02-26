@@ -1,0 +1,75 @@
+/* ── Dark Bootstrap Component Overrides ───────────────────── */
+
+/* Card */
+.card {
+    background-color: var(--bg-card);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: #ffffff;
+}
+.card-title,
+.card-body {
+    color: #ffffff;
+}
+
+/* Form controls */
+.form-control,
+.form-select {
+    background-color: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #ffffff;
+}
+.form-control:focus,
+.form-select:focus {
+    background-color: rgba(255, 255, 255, 0.13);
+    border-color: var(--btn-outline);
+    color: #ffffff;
+    box-shadow: 0 0 0 3px rgba(122, 102, 159, 0.25);
+}
+.form-control::placeholder {
+    color: var(--text-muted);
+}
+.form-label {
+    color: rgba(255, 255, 255, 0.85);
+}
+textarea.form-control {
+    resize: vertical;
+}
+
+/* Alerts */
+.alert-danger  { background-color: rgba(189,108,116,0.2); border-color: rgba(189,108,116,0.4); color: #f1a8ae; }
+.alert-success { background-color: rgba(64,198,165,0.2);  border-color: rgba(64,198,165,0.4);  color: #7eefd5; }
+.alert-info    { background-color: rgba(100,149,237,0.2); border-color: rgba(100,149,237,0.4); color: #a8c0f5; }
+.alert-warning { background-color: rgba(241,196,15,0.15); border-color: rgba(241,196,15,0.35); color: #f5d96e; }
+
+/* Buttons */
+.btn-primary { background-color: var(--btn-outline); border-color: var(--btn-outline); }
+.btn-primary:hover { background-color: var(--btn-outline-hover); border-color: var(--btn-outline-hover); }
+.btn-outline-secondary { border-color: rgba(255,255,255,0.25); color: rgba(255,255,255,0.75); }
+.btn-outline-secondary:hover { background-color: rgba(255,255,255,0.1); color: #fff; }
+.btn-outline-danger { border-color: rgba(189,108,116,0.6); color: #f1a8ae; }
+.btn-outline-danger:hover { background-color: rgba(189,108,116,0.2); color: #f1a8ae; }
+.btn-success { background-color: #40c6a5; border-color: #40c6a5; }
+.btn-success:hover { background-color: #33a98c; border-color: #33a98c; }
+
+/* Badges */
+.badge.bg-secondary { background-color: rgba(255,255,255,0.15) !important; color: #fff; }
+.badge.bg-light { background-color: rgba(255,255,255,0.12) !important; color: #e0e0e0 !important; }
+
+/* Table */
+.table { color: #ffffff; }
+.table thead th { border-color: rgba(255,255,255,0.1); color: var(--text-muted); }
+.table td, .table th { border-color: rgba(255,255,255,0.06); }
+.table-hover > tbody > tr:hover > * { background-color: rgba(255,255,255,0.05); color: #fff; }
+
+/* Score badge (movie detail) */
+.score-badge {
+    background-color: rgba(241, 196, 15, 0.15);
+    border: 1px solid rgba(241, 196, 15, 0.3);
+    color: #f1c40f;
+    border-radius: 6px;
+}
+
+/* Footer */
+.site-footer-bar {
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}

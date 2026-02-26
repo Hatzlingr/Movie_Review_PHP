@@ -1,0 +1,23 @@
+/* ── Base: Variables & Global ─────────────────────────────── */
+
+:root {
+    --bg-main: #1c1527;
+    --bg-card: #2f2543;
+    --btn-outline: #7a669f;
+    --btn-outline-hover: #9c89c4;
+    --text-muted: #a9a2b8;
+}
+
+body {
+    background-color: var(--bg-main);
+    color: #ffffff;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    overflow-x: hidden;
+}
+
+a { color: #b39ddb; }
+a:hover { color: var(--btn-outline-hover); }
+
+hr { border-color: rgba(255, 255, 255, 0.1); }
+
+.text-muted { color: var(--text-muted) !important; }

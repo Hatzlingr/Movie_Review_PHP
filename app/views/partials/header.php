@@ -8,80 +8,67 @@ ensure_session();
 $_current_user = current_user();
 $_q = e($_GET['q'] ?? '');
 ?>
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="id">
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title><?= e($pageTitle ?? 'MovieReview') ?></title>
-    <!-- Bootstrap 5 -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-    <!-- Bootstrap Icons -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?= e($pageTitle ?? 'ELITISRIPIW') ?></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <!-- App CSS -->
-    <link rel="stylesheet" href="/public/assets/css/app.css">
+    <style>
+        <?php
+        // File urutan penting: base → navbar → hero → home → dark-bs → responsive
+        // Halaman tertentu bisa tambah file ekstra via $extraCss = ['admin']
+        $_cssDir   = __DIR__ . '/../../../public/assets/css/';
+        $_cssFiles = array_merge(
+            ['base', 'navbar', 'hero', 'home', 'dark-bs', 'responsive'],
+            $extraCss ?? []
+        );
+        foreach ($_cssFiles as $_f) {
+            $fp = $_cssDir . $_f . '.css';
+            if (file_exists($fp)) echo file_get_contents($fp);
+        }
+        ?>
+    </style>
 </head>
 
 <body>
 
-    <!-- ===== SITE HEADER ===== -->
-    <header class="site-header">
-        <div class="site-header__overlay"></div>
-        <div class="container position-relative py-4">
-            <div class="d-flex flex-column flex-md-row align-items-center gap-3">
-
-                <!-- Brand -->
-                <a class="site-header__brand me-md-4 text-decoration-none" href="/public/index.php">
-                    <i class="bi bi-film"></i> MovieReview
-                </a>
-
-                <!-- Search -->
-                <form class="site-header__search flex-grow-1" method="get" action="/public/index.php" role="search">
-                    <div class="search-pill">
-                        <i class="bi bi-search search-pill__icon"></i>
-                        <input
-                            class="search-pill__input"
-                            type="search"
-                            name="q"
-                            value="<?= $_q ?>"
+    <!-- ===== NAVBAR ===== -->
+    <nav class="navbar-custom">
+        <div class="container d-flex justify-content-between align-items-center">
+            <a href="/public/index.php" class="mb-0 fw-bold text-white text-decoration-none" style="letter-spacing:1px;">ELITISRIPIW</a>
+            <div class="d-flex align-items-center gap-3">
+                <form method="get" action="/public/index.php" class="mb-0">
+                    <div class="search-wrapper">
+                        <i class="fa-solid fa-search"></i>
+                        <input type="text" name="q" class="search-input"
                             placeholder="Search movies…"
-                            aria-label="Search movies">
-                        <button class="search-pill__btn" type="submit">Go</button>
+                            value="<?= $_q ?>">
                     </div>
                 </form>
-
-                <!-- Nav links -->
-                <nav class="site-header__nav d-flex align-items-center gap-2">
-                    <?php if ($_current_user): ?>
-                        <a class="btn btn-sm btn-outline-light" href="/me/watchlist.php">
-                            <i class="bi bi-bookmark-star"></i> Watchlist
-                        </a>
-                        <a class="btn btn-sm btn-outline-light" href="/me/reviews.php">
-                            <i class="bi bi-chat-left-text"></i> My Reviews
-                        </a>
+                <?php if ($_current_user): ?>
+                    <div class="nav-auth d-flex gap-2 align-items-center">
+                        <a href="/me/watchlist.php">Watchlist</a>
+                        <a href="/me/reviews.php">My Reviews</a>
                         <?php if ($_current_user['role'] === 'admin'): ?>
-                            <a class="btn btn-sm btn-warning" href="/admin/dashboard.php">
-                                <i class="bi bi-speedometer2"></i> Admin
-                            </a>
+                            <a href="/admin/dashboard.php">Admin</a>
                         <?php endif; ?>
-                        <a class="btn btn-sm btn-danger" href="/auth/logout.php">
-                            <i class="bi bi-box-arrow-right"></i> Logout
-                        </a>
-                    <?php else: ?>
-                        <a class="btn btn-sm btn-outline-light" href="/auth/login.php">
-                            <i class="bi bi-box-arrow-in-right"></i> Login
-                        </a>
-                        <a class="btn btn-sm btn-primary" href="/auth/register.php">
-                            <i class="bi bi-person-plus"></i> Register
-                        </a>
-                    <?php endif; ?>
-                </nav>
-
+                        <a href="/auth/logout.php">Logout</a>
+                    </div>
+                    <i class="fa-solid fa-circle-user fs-3 text-white"></i>
+                <?php else: ?>
+                    <div class="nav-auth d-flex gap-2">
+                        <a href="/auth/login.php">Login</a>
+                        <a href="/auth/register.php">Register</a>
+                    </div>
+                    <i class="fa-solid fa-circle-user fs-3 text-white"></i>
+                <?php endif; ?>
             </div>
         </div>
-    </header>
-    <!-- ===== END HEADER ===== -->
+    </nav>
 
-    <main class="container my-4">
-        <?php flash_render(); ?>
+    <!-- ===== END NAVBAR ===== -->

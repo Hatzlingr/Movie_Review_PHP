@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard ELITISRIPIW</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    
+    <style>
+        :root {
+            --bg-main: #1c1527;
+            --bg-card: #2f2543;
+            --btn-outline: #7a669f;
+            --btn-outline-hover: #9c89c4;
+            --text-muted: #a9a2b8;
+        }
+
+        body {
+            background-color: var(--bg-main);
+            color: #ffffff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* Navbar */
+        .navbar-custom {
+            position: absolute;
+            top: 0;
+            width: 100%;
+            z-index: 10;
+            padding: 20px 0;
+        }
+        .search-wrapper {
+            position: relative;
+        }
+        .search-wrapper .fa-search {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: rgba(255,255,255,0.5);
+        }
+        .search-input {
+            background-color: rgba(255, 255, 255, 0.2);
+            border: none;
+            border-radius: 20px;
+            padding: 5px 15px 5px 40px;
+            color: white;
+            width: 250px;
+        }
+        .search-input::placeholder {
+            color: rgba(255,255,255,0.7);
+        }
+        .search-input:focus {
+            background-color: rgba(255, 255, 255, 0.3);
+            color: white;
+            box-shadow: none;
+            outline: none;
+        }
+
+        /* Hero Section */
+        .hero {
+            position: relative;
+            padding: 100px 0 60px;
+            background: linear-gradient(to bottom, rgba(28, 21, 39, 0.6), rgba(28, 21, 39, 1)), url('https://image.tmdb.org/t/p/original/gKkl37BQuKTanygYQG1pyYgLVgf.jpg') center/cover no-repeat;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .hero-title-top {
+            font-weight: 700;
+            letter-spacing: 1px;
+            margin-bottom: 40px;
+        }
+        .hero-poster {
+            border-radius: 12px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            width: 100%;
+            max-width: 220px;
+        }
+        .hero-desc {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            display: -webkit-box;
+            -webkit-line-clamp: 4;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .nav-arrow-hero {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 45px;
+            height: 45px;
+            background-color: white;
+            color: black;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            z-index: 5;
+            cursor: pointer;
+        }
+        .nav-arrow-hero.left { left: 20px; }
+        .nav-arrow-hero.right { right: 20px; }
+
+        /* Sections & Scrolling */
+        .section-header {
+            border-bottom: 2px solid rgba(255,255,255,0.1);
+            padding-bottom: 8px;
+            margin-bottom: 20px;
+            font-weight: 700;
+            font-size: 1.2rem;
+        }
+        .scroll-wrapper {
+            position: relative;
+        }
+        .horizontal-scroll {
+            display: flex;
+            gap: 15px;
+            overflow-x: auto;
+            padding-bottom: 15px;
+            scrollbar-width: none; /* Firefox */
+        }
+        .horizontal-scroll::-webkit-scrollbar {
+            display: none; /* Chrome/Safari */
+        }
+        .nav-arrow-list {
+            position: absolute;
+            right: -20px;
+            top: 40%;
+            transform: translateY(-50%);
+            width: 40px;
+            height: 40px;
+            background-color: white;
+            color: black;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            z-index: 5;
+            cursor: pointer;
+        }
+
+        /* Movie Card */
+        .movie-card {
+            background-color: var(--bg-card);
+            border-radius: 12px;
+            padding: 12px;
+            min-width: 165px;
+            max-width: 165px;
+            display: flex;
+            flex-direction: column;
+        }
+        .movie-card img {
+            border-radius: 8px;
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            margin-bottom: 10px;
+        }
+        .movie-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            margin-bottom: 2px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .movie-rating {
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        .movie-rating i {
+            color: #f1c40f;
+            font-size: 0.7rem;
+            margin-left: 2px;
+        }
+        .btn-card {
+            background: transparent;
+            border: 1px solid var(--btn-outline);
+            color: white;
+            border-radius: 20px;
+            padding: 6px 0;
+            font-size: 0.7rem;
+            font-weight: 600;
+            width: 100%;
+            margin-bottom: 6px;
+            transition: 0.2s;
+        }
+        .btn-card:hover {
+            background-color: var(--btn-outline);
+        }
+        
+        /* Status Buttons */
+        .btn-plan { background-color: #bd6c74; border: none; color: white; border-radius: 20px; padding: 6px 0; font-size: 0.7rem; font-weight: 600; width: 100%; }
+        .btn-watching { background-color: #7d708d; border: none; color: white; border-radius: 20px; padding: 6px 0; font-size: 0.7rem; font-weight: 600; width: 100%; }
+        .btn-completed { background-color: #40c6a5; border: none; color: white; border-radius: 20px; padding: 6px 0; font-size: 0.7rem; font-weight: 600; width: 100%; }
+
+        .add-more-card {
+            background-color: var(--bg-card);
+            border-radius: 12px;
+            min-width: 165px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        /* Review Card */
+        .review-card {
+            background-color: var(--bg-card);
+            border-radius: 15px;
+            padding: 20px;
+            min-width: 300px;
+            max-width: 300px;
+        }
+        .review-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+        }
+        .reviewer-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .reviewer-avatar {
+            width: 40px;
+            height: 40px;
+            background-color: #e0e0e0;
+            border-radius: 50%;
+        }
+        .reviewer-name {
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin: 0;
+        }
+        .review-date {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin: 0;
+        }
+        .review-score {
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        .review-text {
+            font-size: 0.85rem;
+            color: #d1cde0;
+            display: -webkit-box;
+            -webkit-line-clamp: 6;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            line-height: 1.5;
+            margin-bottom: 15px;
+        }
+        .review-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+        .review-actions i {
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar-custom">
+        <div class="container d-flex justify-content-between align-items-center">
+            <a href="/index2.html" class="mb-0 fw-bold text-white tracking-wide">ELITISRIPIW</a>
+            <a href="/index3.html" class="mb-0 fw-bold text-white tracking-wide">ELITISRIPIW</a>
+            <div class="d-flex align-items-center gap-3">
+                <div class="search-wrapper">
+                    <i class="fa-solid fa-search"></i>
+                    <input type="text" class="search-input" placeholder="Enola Holmes">
+                </div>
+                <i class="fa-solid fa-circle-user fs-3 text-white"></i>
+            </div>
+        </div>
+    </nav>
+    
+
+    <section class="hero">
+        <button class="nav-arrow-hero left"><i class="fa-solid fa-chevron-left"></i></button>
+        <button class="nav-arrow-hero right"><i class="fa-solid fa-chevron-right"></i></button>
+
+        <div class="container">
+            <h5 class="text-center hero-title-top">BEST REVIEW ON FEBRUARY</h5>
+            
+            <div class="row justify-content-center align-items-center mt-4">
+                <div class="col-md-3 text-end">
+                    <img src="https://image.tmdb.org/t/p/w500/hlK0e0wAQ3VLuJcsfIYPpn4TgIL.jpg" alt="Zootopia 2" class="hero-poster">
+                </div>
+                <div class="col-md-5 ps-4">
+                    <h2 class="fw-bold mb-2">ZOOTOPIA 2</h2>
+                    <p class="hero-desc mb-3">
+                        Continuing the story of detectives Judy Hopps and Nick Wilde, now officially part of the ZPD. They are tasked with tracking down Gary The Snake, a mysterious pit viper who is causing chaos, forcing them to go undercover in new areas like Marsh Market, the desert, and the swamp. This mission tests their relationship and uncovers the dark history of the city's founder.
+                    </p>
+                    <div class="d-flex align-items-center">
+                        <span class="display-5 fw-bold me-3">3.1</span>
+                        <div class="text-white fs-5">
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-solid fa-star"></i>
+                            <i class="fa-regular fa-star-half-stroke"></i>
+                            <i class="fa-regular fa-star"></i>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-1 text-center">
+                    <h1 class="fw-bold" style="font-size: 5rem;">1</h1>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container mt-5 pb-5">
+        
+        <h5 class="section-header">Movie List</h5>
+        <div class="scroll-wrapper mb-5">
+            <button class="nav-arrow-list"><i class="fa-solid fa-chevron-right"></i></button>
+            <div class="horizontal-scroll">
+                <script>
+                    for(let i=0; i<6; i++) {
+                        document.write(`
+                        <div class="movie-card">
+                            <img src="https://image.tmdb.org/t/p/w500/ls5Rl3L0QAWaNNz8y7s3TWeo2m5.jpg" alt="Enola Holmes">
+                            <div class="movie-title">ENOLA HOLMES (2020)</div>
+                            <div class="movie-rating">3.1 <i class="fa-solid fa-star"></i></div>
+                            <button class="btn-card">See Details</button>
+                            <button class="btn-card">Add To Watch List</button>
+                        </div>
+                        `);
+                    }
+                </script>
+            </div>
+        </div>
+
+        <h5 class="section-header">My Watch List</h5>
+        <div class="scroll-wrapper mb-5">
+            <div class="horizontal-scroll">
+                
+                <div class="movie-card">
+                    <img src="https://image.tmdb.org/t/p/w500/ls5Rl3L0QAWaNNz8y7s3TWeo2m5.jpg" alt="Enola Holmes">
+                    <div class="movie-title">ENOLA HOLMES (2020)</div>
+                    <div class="movie-rating">3.1 <i class="fa-solid fa-star"></i></div>
+                    <button class="btn-card">See Details</button>
+                    <button class="btn-plan">Plan To Watch</button>
+                </div>
+
+                <div class="movie-card">
+                    <img src="https://image.tmdb.org/t/p/w500/ls5Rl3L0QAWaNNz8y7s3TWeo2m5.jpg" alt="Enola Holmes">
+                    <div class="movie-title">ENOLA HOLMES (2020)</div>
+                    <div class="movie-rating">3.1 <i class="fa-solid fa-star"></i></div>
+                    <button class="btn-card">See Details</button>
+                    <button class="btn-watching">watching</button>
+                </div>
+
+                <div class="movie-card">
+                    <img src="https://image.tmdb.org/t/p/w500/ls5Rl3L0QAWaNNz8y7s3TWeo2m5.jpg" alt="Enola Holmes">
+                    <div class="movie-title">ENOLA HOLMES (2020)</div>
+                    <div class="movie-rating">3.1 <i class="fa-solid fa-star"></i></div>
+                    <button class="btn-card">See Details</button>
+                    <button class="btn-completed">COMPLETED</button>
+                </div>
+
+                <div class="add-more-card">
+                    <i class="fa-solid fa-circle-plus" style="font-size: 3rem; color: #7a669f;"></i>
+                </div>
+
+            </div>
+        </div>
+
+        <h5 class="section-header" style="text-transform: lowercase;">other reviews</h5>
+        <div class="scroll-wrapper">
+            <button class="nav-arrow-list"><i class="fa-solid fa-chevron-right"></i></button>
+            <div class="horizontal-scroll">
+                <script>
+                    for(let i=0; i<4; i++) {
+                        document.write(`
+                        <div class="review-card">
+                            <div class="review-header">
+                                <div class="reviewer-info">
+                                    <div class="reviewer-avatar"></div>
+                                    <div>
+                                        <p class="reviewer-name">Syawal</p>
+                                        <p class="review-date">2/12/2026</p>
+                                    </div>
+                                </div>
+                                <div class="review-score">3/5</div>
+                            </div>
+                            <p class="review-text">
+                                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+                            </p>
+                            <div class="review-actions">
+                                <span><i class="fa-regular fa-thumbs-up me-1"></i> 200</span>
+                                <span><i class="fa-regular fa-thumbs-down me-1"></i> 200</span>
+                            </div>
+                        </div>
+                        `);
+                    }
+                </script>
+            </div>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

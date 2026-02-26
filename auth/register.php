@@ -73,49 +73,49 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $pageTitle = 'Register';
 require_once __DIR__ . '/../app/views/partials/header.php';
 ?>
+<main class="container mt-5 pt-5 pb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
 
-<div class="row justify-content-center">
-    <div class="col-md-5">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h4 class="card-title fw-bold mb-4"><i class="bi bi-person-plus"></i> Create Account</h4>
 
-        <div class="card shadow-sm">
-            <div class="card-body p-4">
-                <h4 class="card-title fw-bold mb-4"><i class="bi bi-person-plus"></i> Create Account</h4>
+                    <?php foreach ($errors as $err): ?>
+                        <div class="alert alert-danger py-2"><?= e($err) ?></div>
+                    <?php endforeach; ?>
 
-                <?php foreach ($errors as $err): ?>
-                    <div class="alert alert-danger py-2"><?= e($err) ?></div>
-                <?php endforeach; ?>
+                    <form method="post" novalidate>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Username</label>
+                            <input type="text" name="username" class="form-control"
+                                value="<?= e($username) ?>" required autofocus maxlength="32">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Email</label>
+                            <input type="email" name="email" class="form-control"
+                                value="<?= e($email) ?>" required maxlength="255">
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Password</label>
+                            <input type="password" name="password" class="form-control"
+                                required minlength="8">
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold">Confirm Password</label>
+                            <input type="password" name="confirm" class="form-control" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary w-100">Register</button>
+                    </form>
 
-                <form method="post" novalidate>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Username</label>
-                        <input type="text" name="username" class="form-control"
-                            value="<?= e($username) ?>" required autofocus maxlength="32">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Email</label>
-                        <input type="email" name="email" class="form-control"
-                            value="<?= e($email) ?>" required maxlength="255">
-                    </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Password</label>
-                        <input type="password" name="password" class="form-control"
-                            required minlength="8">
-                    </div>
-                    <div class="mb-4">
-                        <label class="form-label fw-semibold">Confirm Password</label>
-                        <input type="password" name="confirm" class="form-control" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary w-100">Register</button>
-                </form>
-
-                <hr>
-                <p class="text-center mb-0">Already have an account?
-                    <a href="/auth/login.php">Log in</a>
-                </p>
+                    <hr>
+                    <p class="text-center mb-0">Already have an account?
+                        <a href="/auth/login.php">Log in</a>
+                    </p>
+                </div>
             </div>
+
         </div>
-
     </div>
-</div>
-
-<?php require_once __DIR__ . '/../app/views/partials/footer.php'; ?>
+</main>
+    <?php require_once __DIR__ . '/../app/views/partials/footer.php'; ?>

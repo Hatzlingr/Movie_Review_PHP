@@ -7,5 +7,5 @@ if (!defined('BASE_PATH')) {
 }
 
 if (!defined('BASE_URL')) {
-    define('BASE_URL', '/movie_review');
+    define('BASE_URL', '');
 }

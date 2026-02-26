@@ -27,9 +27,8 @@ if ($movieId <= 0 || $score < 1 || $score > 5) {
 $userId = current_user()['id'];
 
 $stmt = $pdo->prepare(
-    "INSERT INTO ratings (user_id, movie_id, score)
-     VALUES (:u, :m, :s)
-     ON DUPLICATE KEY UPDATE score = VALUES(score)"
+    "INSERT INTO ratings (user_id, movie_id, score) VALUES (:u, :m, :s)
+     AS new_rt ON DUPLICATE KEY UPDATE score = new_rt.score"
 );
 $stmt->execute([':u' => $userId, ':m' => $movieId, ':s' => $score]);
 

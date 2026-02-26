@@ -27,9 +27,8 @@ if ($movieId <= 0 || $reviewText === '') {
 $userId = current_user()['id'];
 
 $stmt = $pdo->prepare(
-    "INSERT INTO reviews (user_id, movie_id, review_text)
-     VALUES (:u, :m, :t)
-     ON DUPLICATE KEY UPDATE review_text = VALUES(review_text), created_at = created_at"
+    "INSERT INTO reviews (user_id, movie_id, review_text) VALUES (:u, :m, :t)
+     AS new_rv ON DUPLICATE KEY UPDATE review_text = new_rv.review_text"
 );
 $stmt->execute([':u' => $userId, ':m' => $movieId, ':t' => $reviewText]);
 
