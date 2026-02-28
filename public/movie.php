@@ -105,6 +105,7 @@ if ($user) {
 
 $pageTitle = e($movie['title']);
 require_once __DIR__ . '/../app/views/partials/header.php';
+require_once __DIR__ . '/../app/views/partials/navbar.php';
 ?>
 
 <main class="container mt-5 pt-5 pb-5">

@@ -88,6 +88,23 @@ class MovieRepository
         $stmt->execute([':month' => $month, ':year' => $year]);
         $movie = $stmt->fetch(PDO::FETCH_ASSOC);
 
+        // Fallback: best movie of all time if no ratings this month
+        if (!$movie) {
+            $fallback = $this->pdo->query(
+                "SELECT m.id, m.title, m.description, m.release_year, m.duration_minutes,
+                        m.poster_path, m.banner_path,
+                        ROUND(AVG(r.score), 1) AS avg_rating,
+                        AVG(r.score)            AS avg_score,
+                        COUNT(r.id)             AS rating_count
+                 FROM movies m
+                 JOIN ratings r ON r.movie_id = m.id
+                 GROUP BY m.id, m.title, m.description, m.release_year, m.duration_minutes, m.poster_path, m.banner_path
+                 ORDER BY avg_score DESC, rating_count DESC, m.id ASC
+                 LIMIT 1"
+            );
+            $movie = $fallback->fetch(PDO::FETCH_ASSOC) ?: null;
+        }
+
         return $movie ?: null;
     }
 

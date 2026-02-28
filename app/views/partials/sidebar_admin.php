@@ -10,7 +10,7 @@ $_admin_links = [
 ];
 $_current_path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 ?>
-<div class="admin-sidebar d-flex flex-column p-3 bg-dark text-white" style="min-width:220px;min-height:calc(100vh - 120px)">
+<div class="admin-sidebar d-flex flex-column p-3 bg-dark text-white" style="min-width:220px;width:220px;">
     <p class="text-uppercase fw-bold text-secondary small mb-3 px-2">Admin Panel</p>
     <ul class="nav flex-column gap-1">
         <?php foreach ($_admin_links as $link): ?>

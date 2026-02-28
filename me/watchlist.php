@@ -51,6 +51,7 @@ $statusLabels = [
 
 $pageTitle = 'My Watchlist';
 require_once __DIR__ . '/../app/views/partials/header.php';
+require_once __DIR__ . '/../app/views/partials/navbar.php';
 ?>
 <main class="container mt-5 pt-5 pb-5">
     <div class="d-flex justify-content-between align-items-center mb-4">

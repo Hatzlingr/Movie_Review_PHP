@@ -26,6 +26,17 @@ if (isset($_GET['toggle_role'])) {
     redirect('/admin/users/index.php');
 }
 
+if (isset($_GET['deleteUser'])) {
+    $uid = (int) $_GET['deleteUser'];
+    if ($uid !== current_user()['id']) {    // Prevent deleting yourself
+        $pdo->prepare("DELETE FROM users WHERE id = :id")->execute([':id' => $uid]);
+        flash_set('success', 'User deleted successfully.');
+    } else {
+        flash_set('warning', 'You cannot delete your own account.');
+    }
+    redirect('/admin/users/index.php');
+}
+
 $users = $pdo->query(
     "SELECT u.id, u.username, u.email, u.role, u.created_at,
             COUNT(DISTINCT rv.id)  AS review_count,
@@ -38,69 +49,68 @@ $users = $pdo->query(
 )->fetchAll();
 
 $pageTitle = 'Manage Users';
-require_once __DIR__ . '/../../app/views/partials/header.php';
+require_once __DIR__ . '/../../app/views/partials/header_admin.php';
 ?>
 
-<div class="d-flex gap-4 align-items-start">
-    <?php require_once __DIR__ . '/../../app/views/partials/sidebar_admin.php'; ?>
-
-    <div class="flex-grow-1">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <h4 class="fw-bold mb-0"><i class="bi bi-people"></i> Users</h4>
-            <span class="badge bg-secondary fs-6"><?= count($users) ?> total</span>
-        </div>
-
-        <div class="table-responsive">
-            <table class="table table-hover align-middle">
-                <thead class="table-light">
-                    <tr>
-                        <th>#</th>
-                        <th>Username</th>
-                        <th>Email</th>
-                        <th>Role</th>
-                        <th>Reviews</th>
-                        <th>Ratings</th>
-                        <th>Joined</th>
-                        <th class="text-end">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <?php foreach ($users as $u): ?>
-                        <?php $isSelf = $u['id'] === current_user()['id']; ?>
-                        <tr>
-                            <td class="text-muted small"><?= (int)$u['id'] ?></td>
-                            <td class="fw-semibold">
-                                <?= e($u['username']) ?>
-                                <?php if ($isSelf): ?>
-                                    <span class="badge bg-info text-dark ms-1 small">you</span>
-                                <?php endif; ?>
-                            </td>
-                            <td class="text-muted small"><?= e($u['email']) ?></td>
-                            <td>
-                                <span class="badge bg-<?= $u['role'] === 'admin' ? 'danger' : 'secondary' ?>">
-                                    <?= e($u['role']) ?>
-                                </span>
-                            </td>
-                            <td><?= (int)$u['review_count'] ?></td>
-                            <td><?= (int)$u['rating_count'] ?></td>
-                            <td class="text-muted small"><?= e(substr($u['created_at'], 0, 10)) ?></td>
-                            <td class="text-end">
-                                <?php if (!$isSelf): ?>
-                                    <a href="?toggle_role=<?= (int)$u['id'] ?>"
-                                        class="btn btn-sm btn-outline-<?= $u['role'] === 'admin' ? 'warning' : 'success' ?>"
-                                        onclick="return confirm('Change role of &quot;<?= e(addslashes($u['username'])) ?>&quot; to <?= $u['role'] === 'admin' ? 'user' : 'admin' ?>?')">
-                                        <?= $u['role'] === 'admin' ? '<i class="bi bi-arrow-down-circle"></i> Make User' : '<i class="bi bi-arrow-up-circle"></i> Make Admin' ?>
-                                    </a>
-                                <?php else: ?>
-                                    <span class="text-muted small">—</span>
-                                <?php endif; ?>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
-    </div>
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 class="fw-bold mb-0"><i class="bi bi-people"></i> Users</h4>
+    <span class="badge bg-secondary fs-6"><?= count($users) ?> total</span>
 </div>
 
-<?php require_once __DIR__ . '/../../app/views/partials/footer.php'; ?>
+<div class="table-responsive">
+    <table class="table table-hover align-middle">
+        <thead class="table-light">
+            <tr>
+                <th>#</th>
+                <th>Username</th>
+                <th>Email</th>
+                <th>Role</th>
+                <th>Reviews</th>
+                <th>Ratings</th>
+                <th>Joined</th>
+                <th class="text-end">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($users as $u): ?>
+                <?php $isSelf = $u['id'] === current_user()['id']; ?>
+                <tr>
+                    <td class="text-muted small"><?= (int)$u['id'] ?></td>
+                    <td class="fw-semibold">
+                        <?= e($u['username']) ?>
+                        <?php if ($isSelf): ?>
+                            <span class="badge bg-info text-dark ms-1 small">you</span>
+                        <?php endif; ?>
+                    </td>
+                    <td class="text-muted small"><?= e($u['email']) ?></td>
+                    <td>
+                        <span class="badge bg-<?= $u['role'] === 'admin' ? 'danger' : 'secondary' ?>">
+                            <?= e($u['role']) ?>
+                        </span>
+                    </td>
+                    <td><?= (int)$u['review_count'] ?></td>
+                    <td><?= (int)$u['rating_count'] ?></td>
+                    <td class="text-muted small"><?= e(substr($u['created_at'], 0, 10)) ?></td>
+                    <td class="text-end">
+                        <?php if (!$isSelf): ?>
+                            <a href="?toggle_role=<?= (int)$u['id'] ?>"
+                                class="btn btn-sm btn-outline-<?= $u['role'] === 'admin' ? 'warning' : 'success' ?>"
+                                onclick="return confirm('Change role of &quot;<?= e(addslashes($u['username'])) ?>&quot; to <?= $u['role'] === 'admin' ? 'user' : 'admin' ?>?')">
+                                <?= $u['role'] === 'admin' ? '<i class="bi bi-arrow-down-circle"></i> Make User' : '<i class="bi bi-arrow-up-circle"></i> Make Admin' ?>
+                            </a>
+                            <a href="?deleteUser=<?= (int)$u['id'] ?>"
+                                class="btn btn-sm btn-outline-danger ms-1"
+                                onclick="return confirm('Delete user &quot;<?= e(addslashes($u['username'])) ?>&quot;? This will also delete all their reviews, ratings, and watchlist.')">
+                                <i class="bi bi-trash"></i> Delete
+                            </a>
+                        <?php else: ?>
+                            <span class="text-muted small">—</span>
+                        <?php endif; ?>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+</div>
+
+<?php require_once __DIR__ . '/../../app/views/partials/footer_admin.php'; ?>

@@ -72,6 +72,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 $pageTitle = 'Register';
 require_once __DIR__ . '/../app/views/partials/header.php';
+require_once __DIR__ . '/../app/views/partials/navbar.php';
 ?>
 <main class="container mt-5 pt-5 pb-5">
     <div class="row justify-content-center">
@@ -118,4 +119,4 @@ require_once __DIR__ . '/../app/views/partials/header.php';
         </div>
     </div>
 </main>
-    <?php require_once __DIR__ . '/../app/views/partials/footer.php'; ?>
+<?php require_once __DIR__ . '/../app/views/partials/footer.php'; ?>
