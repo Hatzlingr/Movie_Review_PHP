@@ -14,3 +14,13 @@ $pdo = new PDO($dsn, $DB_USER, $DB_PASS, [
     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
     PDO::ATTR_EMULATE_PREPARES   => false,
 ]);
+
+/**
+ * Returns the PDO instance. Centralises access so other code
+ * doesn't need to reference the global $pdo variable directly.
+ */
+function get_pdo(): PDO
+{
+    global $pdo;
+    return $pdo;
+}
