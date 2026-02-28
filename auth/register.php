@@ -10,7 +10,7 @@ require_once __DIR__ . '/../app/config/db.php';
 ensure_session();
 
 if (is_logged_in()) {
-    redirect('/public/index.php');
+    redirect('/index.php');
 }
 
 $errors   = [];
@@ -66,7 +66,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         login_user($row->fetch());
 
         flash_set('success', 'Welcome, ' . $username . '!');
-        redirect('/public/index.php');
+        redirect('/index.php');
     }
 }
 

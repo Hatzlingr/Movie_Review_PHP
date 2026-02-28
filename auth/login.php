@@ -10,31 +10,45 @@ require_once __DIR__ . '/../app/config/db.php';
 ensure_session();
 
 if (is_logged_in()) {
-    redirect('/public/index.php');
+    redirect('/index.php');
 }
 
-$errors = [];
-$login  = '';
+$error = '';
+$login = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $login    = trim($_POST['login']    ?? '');   // username OR email
-    $password = $_POST['password']      ?? '';
+    $login    = trim($_POST['login'] ?? '');
+    $password = $_POST['password']   ?? '';
+
+    // Rate limiting: maks 5 percobaan per 10 menit
+    $attempts = $_SESSION['login_attempts']     ?? 0;
+    $lastTry  = $_SESSION['login_last_attempt'] ?? 0;
+
+    if (time() - $lastTry > 600) {
+        $attempts = 0; // reset jika sudah lebih dari 10 menit
+    }
 
     if ($login === '' || $password === '') {
-        $errors[] = 'Please enter your username/email and password.';
+        $error = 'Please enter your username/email and password.';
+    } elseif ($attempts >= 5) {
+        $wait  = 600 - (time() - $lastTry);
+        $error = 'Too many failed attempts. Try again in ' . $wait . ' seconds.';
     } else {
         $stmt = $pdo->prepare(
-            "SELECT * FROM users WHERE username = :l1 OR email = :l2 LIMIT 1"
+            "SELECT * FROM users WHERE username = :l OR email = :l LIMIT 1"
         );
-        $stmt->execute([':l1' => $login, ':l2' => $login]);
+        $stmt->execute([':l' => $login]);
         $user = $stmt->fetch();
 
         if (!$user || !password_verify($password, $user['password_hash'])) {
-            $errors[] = 'Invalid credentials. Please try again.';
+            $_SESSION['login_attempts']     = $attempts + 1;
+            $_SESSION['login_last_attempt'] = time();
+            $error = 'Invalid credentials. Please try again.';
         } else {
+            unset($_SESSION['login_attempts'], $_SESSION['login_last_attempt']);
             login_user($user);
             flash_set('success', 'Welcome back, ' . $user['username'] . '!');
-            redirect('/public/index.php');
+            redirect('/index.php');
         }
     }
 }
@@ -51,9 +65,9 @@ require_once __DIR__ . '/../app/views/partials/navbar.php';
                 <div class="card-body p-4">
                     <h4 class="card-title fw-bold mb-4"><i class="bi bi-box-arrow-in-right"></i> Log In</h4>
 
-                    <?php foreach ($errors as $err): ?>
-                        <div class="alert alert-danger py-2"><?= e($err) ?></div>
-                    <?php endforeach; ?>
+                    <?php if ($error): ?>
+                        <div class="alert alert-danger py-2"><?= e($error) ?></div>
+                    <?php endif; ?>
 
                     <form method="post" novalidate>
                         <div class="mb-3">
