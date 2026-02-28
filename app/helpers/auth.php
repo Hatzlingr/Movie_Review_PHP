@@ -67,7 +67,7 @@ function logout_user(): never
         );
     }
     session_destroy();
-    redirect('/auth/login.php');
+    redirect('/index.php');
 }
 
 /**
@@ -90,6 +90,6 @@ function require_admin(): void
     $user = current_user();
     if ($user === null || $user['role'] !== 'admin') {
         flash_set('danger', 'Access denied.');
-        redirect('/public/index.php');
+        redirect('index.php');
     }
 }
