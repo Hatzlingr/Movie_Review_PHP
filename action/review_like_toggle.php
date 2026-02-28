@@ -11,11 +11,11 @@ ensure_session();
 require_login();
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-    redirect('/public/index.php');
+    redirect('/index.php');
 }
 
 $reviewId = (int) ($_POST['review_id'] ?? 0);
-$redirect = $_POST['redirect'] ?? '/public/index.php';
+$redirect = $_POST['redirect'] ?? '/index.php';
 
 if ($reviewId <= 0) {
     flash_set('danger', 'Invalid review.');
