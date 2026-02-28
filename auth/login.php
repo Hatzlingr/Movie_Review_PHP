@@ -13,12 +13,15 @@ if (is_logged_in()) {
     redirect('/index.php');
 }
 
-$error = '';
+$e_general  = '';
+$e_login    = '';
+$e_password = '';
 $login = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $login    = trim($_POST['login'] ?? '');
-    $password = $_POST['password']   ?? '';
+    $login      = trim($_POST['login'] ?? '');   // untuk ditampilkan kembali di form
+    $loginEmail = strtolower($login);            // untuk dicek ke kolom email
+    $password   = $_POST['password'] ?? '';
 
     // Rate limiting: maks 5 percobaan per 10 menit
     $attempts = $_SESSION['login_attempts']     ?? 0;
@@ -28,22 +31,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $attempts = 0; // reset jika sudah lebih dari 10 menit
     }
 
-    if ($login === '' || $password === '') {
-        $error = 'Please enter your username/email and password.';
-    } elseif ($attempts >= 5) {
-        $wait  = 600 - (time() - $lastTry);
-        $error = 'Too many failed attempts. Try again in ' . $wait . ' seconds.';
-    } else {
+    if ($login === '') {
+        $e_login = 'Username or email is required.';
+    }
+    if ($password === '') {
+        $e_password = 'Password is required.';
+    }
+
+    if (!$e_login && !$e_password && $attempts >= 5) {
+        $wait       = 600 - (time() - $lastTry);
+        $e_general  = 'Too many failed attempts. Try again in ' . $wait . ' seconds.';
+    } elseif (!$e_login && !$e_password) {
         $stmt = $pdo->prepare(
-            "SELECT * FROM users WHERE username = :l OR email = :l LIMIT 1"
+            "SELECT id, username, email, role, password_hash, profile_photo
+             FROM users WHERE username = :l1 OR email = :l2 LIMIT 1"
         );
-        $stmt->execute([':l' => $login]);
+        $stmt->execute([':l1' => $login, ':l2' => $loginEmail]);
         $user = $stmt->fetch();
 
         if (!$user || !password_verify($password, $user['password_hash'])) {
             $_SESSION['login_attempts']     = $attempts + 1;
             $_SESSION['login_last_attempt'] = time();
-            $error = 'Invalid credentials. Please try again.';
+            $e_general = 'Invalid credentials. Please try again.';
         } else {
             unset($_SESSION['login_attempts'], $_SESSION['login_last_attempt']);
             login_user($user);
@@ -65,19 +74,29 @@ require_once __DIR__ . '/../app/views/partials/navbar.php';
                 <div class="card-body p-4">
                     <h4 class="card-title fw-bold mb-4"><i class="bi bi-box-arrow-in-right"></i> Log In</h4>
 
-                    <?php if ($error): ?>
-                        <div class="alert alert-danger py-2"><?= e($error) ?></div>
+                    <?php if ($e_general): ?>
+                        <div class="alert alert-danger py-2"><?= e($e_general) ?></div>
                     <?php endif; ?>
 
+                    <?php flash_render(); ?>
                     <form method="post" novalidate>
                         <div class="mb-3">
                             <label class="form-label fw-semibold">Username or Email</label>
-                            <input type="text" name="login" class="form-control"
+                            <input type="text" name="login"
+                                class="form-control <?= $e_login ? 'is-invalid' : '' ?>"
                                 value="<?= e($login) ?>" required autofocus>
+                            <?php if ($e_login): ?>
+                                <div class="invalid-feedback"><?= e($e_login) ?></div>
+                            <?php endif; ?>
                         </div>
                         <div class="mb-4">
                             <label class="form-label fw-semibold">Password</label>
-                            <input type="password" name="password" class="form-control" required>
+                            <input type="password" name="password"
+                                class="form-control <?= $e_password ? 'is-invalid' : '' ?>"
+                                required>
+                            <?php if ($e_password): ?>
+                                <div class="invalid-feedback"><?= e($e_password) ?></div>
+                            <?php endif; ?>
                         </div>
                         <button type="submit" class="btn btn-primary w-100">Log In</button>
                     </form>

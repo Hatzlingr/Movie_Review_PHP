@@ -9,64 +9,89 @@ require_once __DIR__ . '/../app/config/db.php';
 
 ensure_session();
 
+const ROLE_USER = 'user';
+
 if (is_logged_in()) {
     redirect('/index.php');
 }
 
-$errors   = [];
-$username = '';
-$email    = '';
+$e_username = '';
+$e_email    = '';
+$e_password = '';
+$e_confirm  = '';
+$e_general  = '';
+$username   = '';
+$email      = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username'] ?? '');
-    $email    = trim($_POST['email']    ?? '');
+    $email    = strtolower(trim($_POST['email'] ?? ''));
     $password = $_POST['password']      ?? '';
     $confirm  = $_POST['confirm']       ?? '';
 
+    // Validate username
     if ($username === '') {
-        $errors[] = 'Username is required.';
+        $e_username = 'Username is required.';
     } elseif (strlen($username) < 3 || strlen($username) > 32) {
-        $errors[] = 'Username must be 3–32 characters.';
+        $e_username = 'Username must be 3–32 characters.';
+    } elseif (!preg_match('/^[a-zA-Z0-9]([a-zA-Z0-9_-]*[a-zA-Z0-9])?$/', $username)) {
+        $e_username = 'Only letters, numbers, _ and - allowed. Cannot start or end with a symbol.';
+    } elseif (preg_match('/__|--/', $username)) {
+        $e_username = 'Cannot contain consecutive underscores or hyphens.';
     }
 
+    // Validate email
     if ($email === '' || !filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $errors[] = 'A valid email address is required.';
+        $e_email = 'A valid email address is required.';
     }
 
+    // Validate password
     if (strlen($password) < 8) {
-        $errors[] = 'Password must be at least 8 characters.';
+        $e_password = 'Password must be at least 8 characters.';
+    } elseif (!preg_match('/[A-Z]/', $password) || !preg_match('/[0-9]/', $password)) {
+        $e_password = 'Must contain at least one uppercase letter and one number.';
     }
 
+    // Validate confirm
     if ($password !== $confirm) {
-        $errors[] = 'Passwords do not match.';
+        $e_confirm = 'Passwords do not match.';
     }
 
-    if (empty($errors)) {
-        // Check uniqueness
+    // Check uniqueness only if no field errors
+    if (!$e_username && !$e_email && !$e_password && !$e_confirm) {
         $check = $pdo->prepare(
-            "SELECT id FROM users WHERE username = :u OR email = :e LIMIT 1"
+            "SELECT username, email FROM users WHERE username = :u OR email = :e LIMIT 1"
         );
         $check->execute([':u' => $username, ':e' => $email]);
-        if ($check->fetch()) {
-            $errors[] = 'Username or email is already taken.';
+        $taken = $check->fetch();
+        if ($taken) {
+            if ($taken['username'] === $username) $e_username = 'Username is already taken.';
+            if ($taken['email']    === $email)    $e_email    = 'Email is already taken.';
         }
     }
 
-    if (empty($errors)) {
-        $hash = password_hash($password, PASSWORD_BCRYPT);
+    if (!$e_username && !$e_email && !$e_password && !$e_confirm) {
+        $hash = password_hash($password, PASSWORD_DEFAULT);
         $ins  = $pdo->prepare(
             "INSERT INTO users (username, email, password_hash, role)
-             VALUES (:u, :e, :h, 'user')"
+             VALUES (:u, :e, :h, :r)"
         );
-        $ins->execute([':u' => $username, ':e' => $email, ':h' => $hash]);
+        try {
+            $ins->execute([':u' => $username, ':e' => $email, ':h' => $hash, ':r' => ROLE_USER]);
+        } catch (\PDOException $e) {
+            error_log('Register INSERT failed: ' . $e->getMessage());
+            $e_general = 'Registration failed. Please try again.';
+        }
 
-        $newId = (int) $pdo->lastInsertId();
-        $row   = $pdo->prepare("SELECT * FROM users WHERE id = :id");
-        $row->execute([':id' => $newId]);
-        login_user($row->fetch());
-
-        flash_set('success', 'Welcome, ' . $username . '!');
-        redirect('/index.php');
+        if (!$e_general) {
+            $newId = (int) $pdo->lastInsertId();
+            if ($newId === 0) {
+                $e_general = 'Registration failed. Please try again.';
+            } else {
+                flash_set('success', 'Account created! Please log in.');
+                redirect('/auth/login.php');
+            }
+        }
     }
 }
 
@@ -82,29 +107,46 @@ require_once __DIR__ . '/../app/views/partials/navbar.php';
                 <div class="card-body p-4">
                     <h4 class="card-title fw-bold mb-4"><i class="bi bi-person-plus"></i> Create Account</h4>
 
-                    <?php foreach ($errors as $err): ?>
-                        <div class="alert alert-danger py-2"><?= e($err) ?></div>
-                    <?php endforeach; ?>
+                    <?php if ($e_general): ?>
+                        <div class="alert alert-danger"><?= e($e_general) ?></div>
+                    <?php endif; ?>
 
                     <form method="post" novalidate>
                         <div class="mb-3">
                             <label class="form-label fw-semibold">Username</label>
-                            <input type="text" name="username" class="form-control"
+                            <input type="text" name="username"
+                                class="form-control <?= $e_username ? 'is-invalid' : '' ?>"
                                 value="<?= e($username) ?>" required autofocus maxlength="32">
+                            <?php if ($e_username): ?>
+                                <div class="invalid-feedback"><?= e($e_username) ?></div>
+                            <?php endif; ?>
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-semibold">Email</label>
-                            <input type="email" name="email" class="form-control"
+                            <input type="email" name="email"
+                                class="form-control <?= $e_email ? 'is-invalid' : '' ?>"
                                 value="<?= e($email) ?>" required maxlength="255">
+                            <?php if ($e_email): ?>
+                                <div class="invalid-feedback"><?= e($e_email) ?></div>
+                            <?php endif; ?>
                         </div>
                         <div class="mb-3">
                             <label class="form-label fw-semibold">Password</label>
-                            <input type="password" name="password" class="form-control"
+                            <input type="password" name="password"
+                                class="form-control <?= $e_password ? 'is-invalid' : '' ?>"
                                 required minlength="8">
+                            <?php if ($e_password): ?>
+                                <div class="invalid-feedback"><?= e($e_password) ?></div>
+                            <?php endif; ?>
                         </div>
                         <div class="mb-4">
                             <label class="form-label fw-semibold">Confirm Password</label>
-                            <input type="password" name="confirm" class="form-control" required>
+                            <input type="password" name="confirm"
+                                class="form-control <?= $e_confirm ? 'is-invalid' : '' ?>"
+                                required>
+                            <?php if ($e_confirm): ?>
+                                <div class="invalid-feedback"><?= e($e_confirm) ?></div>
+                            <?php endif; ?>
                         </div>
                         <button type="submit" class="btn btn-primary w-100">Register</button>
                     </form>
