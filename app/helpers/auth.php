@@ -12,7 +12,8 @@ function is_logged_in(): bool
 }
 
 /**
- * Return the current user's session data array, or null.
+ * Return the current user's data from the database, or null if not logged in.
+ * Fetches fresh from DB every request so role/data changes take effect immediately.
  *
  * @return array{id: int, username: string, email: string, role: string, profile_photo: string|null}|null
  */
@@ -22,13 +23,33 @@ function current_user(): ?array
     if (empty($_SESSION['user_id'])) {
         return null;
     }
-    return [
-        'id'            => (int) $_SESSION['user_id'],
-        'username'      => $_SESSION['username']      ?? '',
-        'email'         => $_SESSION['email']         ?? '',
-        'role'          => $_SESSION['role']          ?? 'user',
-        'profile_photo' => $_SESSION['profile_photo'] ?? null,
+
+    static $cache = null;
+    if ($cache !== null) {
+        return $cache;
+    }
+
+    $stmt = get_pdo()->prepare(
+        "SELECT id, username, email, role, profile_photo
+         FROM users WHERE id = ? LIMIT 1"
+    );
+    $stmt->execute([$_SESSION['user_id']]);
+    $row = $stmt->fetch();
+
+    // Akun dihapus sementara session masih aktif — paksa logout
+    if (!$row) {
+        logout_user();
+    }
+
+    $cache = [
+        'id'            => (int) $row['id'],
+        'username'      => $row['username'],
+        'email'         => $row['email'],
+        'role'          => $row['role'],
+        'profile_photo' => $row['profile_photo'] ?? null,
     ];
+
+    return $cache;
 }
 
 /**
@@ -59,7 +80,7 @@ function logout_user(): never
         setcookie(
             session_name(),
             '',
-            time() - 42000,
+            time() - 3600,
             $params['path'],
             $params['domain'],
             $params['secure'],
@@ -90,6 +111,6 @@ function require_admin(): void
     $user = current_user();
     if ($user === null || $user['role'] !== 'admin') {
         flash_set('danger', 'Access denied.');
-        redirect('index.php');
+        redirect('/index.php');
     }
 }
