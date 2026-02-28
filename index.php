@@ -1,13 +1,13 @@
 <?php
-// public/index.php
+// index.php
 declare(strict_types=1);
 
-require_once __DIR__ . '/../app/config/app.php';
-require_once __DIR__ . '/../app/helpers/functions.php';
-require_once __DIR__ . '/../app/helpers/flash.php';
-require_once __DIR__ . '/../app/helpers/auth.php';
-require_once __DIR__ . '/../app/config/db.php';
-require_once __DIR__ . '/../app/repositories/movieRepository.php';
+require_once __DIR__ . '/app/config/app.php';
+require_once __DIR__ . '/app/helpers/functions.php';
+require_once __DIR__ . '/app/helpers/flash.php';
+require_once __DIR__ . '/app/helpers/auth.php';
+require_once __DIR__ . '/app/config/db.php';
+require_once __DIR__ . '/app/repositories/movieRepository.php';
 
 ensure_session();
 
@@ -66,16 +66,14 @@ function watchlistStatusBtn(string $status): string
 // ── Page title & header ──────────────────────────────────────────────────────
 $pageTitle        = $q ? 'Search: ' . $q : 'ELITISRIPIW';
 // index.php manages its own layout
-require_once __DIR__ . '/../app/views/partials/header.php';
-require_once __DIR__ . '/../app/views/partials/navbar.php';
-?>
+require_once __DIR__ . '/app/views/partials/header.php';
+require_once __DIR__ . '/app/views/partials/navbar.php';
 
-<!-- ===== HERO ===== -->
-<?php
 $heroBanner = !empty($heroMovie['banner_path'])
     ? '/public/' . ltrim($heroMovie['banner_path'], '/')
     : 'https://image.tmdb.org/t/p/original/gKkl37BQuKTanygYQG1pyYgLVgf.jpg';
 ?>
+
 <section class="hero">
     <img class="hero-bg" src="<?= e($heroBanner) ?>" alt="Banner">
     <div class="hero-overlay"></div>
@@ -169,7 +167,7 @@ $heroBanner = !empty($heroMovie['banner_path'])
                         <?= watchlistStatusBtn($w['status']) ?>
                     </div>
                 <?php endforeach; ?>
-                <a href="/public/index.php" class="add-more-card text-decoration-none">
+                <a href="/index.php" class="add-more-card text-decoration-none">
                     <i class="fa-solid fa-circle-plus" style="font-size:3rem;color:#7a669f;"></i>
                 </a>
             </div>
@@ -210,7 +208,7 @@ $heroBanner = !empty($heroMovie['banner_path'])
     </div>
 
 </div>
-<?php require_once __DIR__ . '/../app/views/partials/footer.php'; ?>
+<?php require_once __DIR__ . '/app/views/partials/footer.php'; ?>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
     function scrollSection(btn, dir) {

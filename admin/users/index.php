@@ -26,6 +26,17 @@ if (isset($_GET['toggle_role'])) {
     redirect('/admin/users/index.php');
 }
 
+if (isset($_GET['deleteUser'])) {
+    $uid = (int) $_GET['deleteUser'];
+    if ($uid !== current_user()['id']) {    // Prevent deleting yourself
+        $pdo->prepare("DELETE FROM users WHERE id = :id")->execute([':id' => $uid]);
+        flash_set('success', 'User deleted successfully.');
+    } else {
+        flash_set('warning', 'You cannot delete your own account.');
+    }
+    redirect('/admin/users/index.php');
+}
+
 $users = $pdo->query(
     "SELECT u.id, u.username, u.email, u.role, u.created_at,
             COUNT(DISTINCT rv.id)  AS review_count,
@@ -86,6 +97,11 @@ require_once __DIR__ . '/../../app/views/partials/header_admin.php';
                                 class="btn btn-sm btn-outline-<?= $u['role'] === 'admin' ? 'warning' : 'success' ?>"
                                 onclick="return confirm('Change role of &quot;<?= e(addslashes($u['username'])) ?>&quot; to <?= $u['role'] === 'admin' ? 'user' : 'admin' ?>?')">
                                 <?= $u['role'] === 'admin' ? '<i class="bi bi-arrow-down-circle"></i> Make User' : '<i class="bi bi-arrow-up-circle"></i> Make Admin' ?>
+                            </a>
+                            <a href="?deleteUser=<?= (int)$u['id'] ?>"
+                                class="btn btn-sm btn-outline-danger ms-1"
+                                onclick="return confirm('Delete user &quot;<?= e(addslashes($u['username'])) ?>&quot;? This will also delete all their reviews, ratings, and watchlist.')">
+                                <i class="bi bi-trash"></i> Delete
                             </a>
                         <?php else: ?>
                             <span class="text-muted small">—</span>
