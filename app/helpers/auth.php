@@ -29,7 +29,8 @@ function current_user(): ?array
         return $cache;
     }
 
-    $stmt = get_pdo()->prepare(
+    global $pdo;
+    $stmt = $pdo->prepare(
         "SELECT id, username, email, role, profile_photo
          FROM users WHERE id = ? LIMIT 1"
     );

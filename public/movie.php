@@ -103,233 +103,333 @@ if ($user) {
     $myLikedReviews = $lStmt->fetchAll(PDO::FETCH_COLUMN);
 }
 
-$pageTitle = e($movie['title']);
-$extraHeadHtml = '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/star-rating.js@4.3.0/dist/star-rating.min.css">';
+$pageTitle  = e($movie['title']);
+$bodyClass  = 'movie-page';
+$extraHeadHtml = '<link rel="stylesheet" href="/public/assets/css/movie.css">'
+               . '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/star-rating.js@4.3.0/dist/star-rating.min.css">';
 require_once __DIR__ . '/../app/views/partials/header.php';
 require_once __DIR__ . '/../app/views/partials/navbar.php';
+
+// helper: format duration as "Xh Ym"
+$dur = '';
+if ($movie['duration_minutes']) {
+    $h = (int) floor((int)$movie['duration_minutes'] / 60);
+    $m = (int)$movie['duration_minutes'] % 60;
+    $dur = ($h ? $h . 'h ' : '') . ($m ? $m . 'm' : '');
+}
+
+// helper: resolve banner URL
+$bannerUrl = posterUrl($movie['banner_path'] ?? null)
+           ?: posterUrl($movie['poster_path'] ?? null);
 ?>
 
-<main class="container mt-5 pt-5 pb-5">
-    <div class="row g-4">
+<main>
 
-        <!-- ── LEFT: Poster ── -->
-        <div class="col-md-3 text-center">
-            <?php if ($movie['poster_path'] && file_exists(__DIR__ . '/' . $movie['poster_path'])): ?>
-                <img src="/<?= e($movie['poster_path']) ?>"
-                    alt="<?= e($movie['title']) ?> poster"
-                    class="movie-poster-lg w-100">
+<!-- ── FLASH ─────────────────────────────────────────────── -->
+<?php foreach (flash_get() as $flash): ?>
+    <div class="flash-inner">
+        <div class="alert alert-<?= e($flash['type']) ?> alert-dismissible fade show" role="alert">
+            <?= e($flash['message']) ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    </div>
+<?php endforeach; ?>
+
+<!-- ── HERO BANNER ───────────────────────────────────────── -->
+<div class="movie-hero">
+    <img src="<?= e($bannerUrl) ?>" alt="<?= e($movie['title']) ?> backdrop"
+         onerror="this.style.display='none'">
+</div>
+
+<!-- ── MOVIE INFO PANEL ──────────────────────────────────── -->
+<div class="movie-info-panel">
+    <div class="movie-info-inner">
+
+        <!-- Poster thumbnail -->
+        <div class="movie-poster-thumb">
+            <?php if ($movie['poster_path']): ?>
+                <img src="<?= e(posterUrl($movie['poster_path'])) ?>"
+                     alt="<?= e($movie['title']) ?> poster">
             <?php else: ?>
-                <div class="movie-poster-lg d-flex align-items-center justify-content-center bg-secondary text-white fs-1 w-100">
-                    <i class="bi bi-film"></i>
-                </div>
+                <div class="poster-placeholder"><i class="fa-solid fa-film"></i></div>
             <?php endif; ?>
         </div>
 
-        <!-- ── RIGHT: Info ── -->
-        <div class="col-md-9">
-            <h2 class="fw-bold"><?= e($movie['title']) ?></h2>
-
-            <div class="d-flex flex-wrap gap-3 text-muted mb-3">
+        <!-- Details -->
+        <div class="movie-meta-details">
+            <h1 class="movie-title-display">
+                <?= e(mb_strtoupper($movie['title'])) ?>
                 <?php if ($movie['release_year']): ?>
-                    <span><i class="bi bi-calendar3"></i> <?= e($movie['release_year']) ?></span>
+                    <span style="font-weight:400;font-size:1.1rem;opacity:.7">(<?= e($movie['release_year']) ?>)</span>
                 <?php endif; ?>
-                <?php if ($movie['duration_minutes']): ?>
-                    <span><i class="bi bi-clock"></i> <?= e($movie['duration_minutes']) ?> min</span>
-                <?php endif; ?>
-                <?php if ($movie['avg_rating']): ?>
-                    <span title="<?= e($movie['avg_rating']) ?>/5" style="color:#f1c40f; font-size:1.1rem; letter-spacing:1px">
-                        <?= renderStars((float)$movie['avg_rating']) ?>
-                    </span>
-                    <span class="score-badge fs-6 px-2"><?= e($movie['avg_rating']) ?>/5</span>
-                    <span class="text-muted"><?= (int)$movie['total_ratings'] ?> rating<?= $movie['total_ratings'] != 1 ? 's' : '' ?></span>
-                <?php else: ?>
-                    <span class="text-muted">No ratings yet</span>
-                <?php endif; ?>
-            </div>
+            </h1>
 
-            <?php if ($movie['description']): ?>
-                <p class="mb-3"><?= e($movie['description']) ?></p>
-            <?php endif; ?>
-
-            <!-- Genres -->
-            <?php if ($genres): ?>
-                <div class="mb-2">
-                    <strong>Genres:</strong>
-                    <?php foreach ($genres as $g): ?>
-                        <span class="badge bg-secondary"><?= e($g) ?></span>
-                    <?php endforeach; ?>
+            <?php if ($movie['release_year'] || $dur): ?>
+                <div class="movie-meta-line">
+                    <?= e($movie['release_year'] ?? '') ?>
+                    <?php if ($movie['release_year'] && $dur): ?>&nbsp;·&nbsp;<?php endif; ?>
+                    <?= $dur ? 'Duration : ' . $dur : '' ?>
                 </div>
             <?php endif; ?>
 
-            <!-- Directors -->
             <?php if ($directors): ?>
-                <div class="mb-2">
+                <div class="movie-directors-line">
                     <strong>Director<?= count($directors) > 1 ? 's' : '' ?>:</strong>
                     <?= e(implode(', ', $directors)) ?>
                 </div>
             <?php endif; ?>
 
-            <!-- Actors -->
-            <?php if ($actors): ?>
-                <div class="mb-3">
-                    <strong>Cast:</strong>
-                    <div class="d-flex flex-wrap gap-2 mt-1">
-                        <?php foreach ($actors as $a): ?>
-                            <span class="badge bg-light text-dark border">
-                                <?= e($a['name']) ?>
-                                <?php if ($a['role_name']): ?>
-                                    <span class="text-muted fw-normal"> as <?= e($a['role_name']) ?></span>
-                                <?php endif; ?>
-                            </span>
-                        <?php endforeach; ?>
-                    </div>
+            <?php if ($genres): ?>
+                <div class="genres-row">
+                    <?php foreach ($genres as $g): ?>
+                        <span class="genre-tag"><?= e($g) ?></span>
+                    <?php endforeach; ?>
                 </div>
             <?php endif; ?>
 
-            <!-- ── Logged-in actions ── -->
-            <?php if ($user): ?>
-                <div class="row g-3 mt-1">
-
-                    <!-- Rating form -->
-                    <div class="col-md-4">
-                        <div class="card border-0 shadow-sm h-100">
-                            <div class="card-body">
-                                <h6 class="card-title"><i class="bi bi-star"></i> Your Rating</h6>
-                                <form method="post" action="/action/rating_save.php">
-                                    <input type="hidden" name="movie_id" value="<?= $id ?>">
-                                    <input type="hidden" name="redirect" value="/public/movie.php?id=<?= $id ?>">
-                                    <select name="score" id="ratingSelect" class="star-rating-input" required>
-                                        <option value="">-- Pilih --</option>
-                                        <?php for ($s = 1; $s <= 5; $s++): ?>
-                                            <option value="<?= $s ?>" <?= (int)$myRating === $s ? 'selected' : '' ?>>
-                                                <?= $s ?> Star<?= $s > 1 ? 's' : '' ?>
-                                            </option>
-                                        <?php endfor; ?>
-                                    </select>
-                                    <button type="submit" class="btn btn-sm btn-warning mt-2">
-                                        <?= $myRating !== false ? 'Update Rating' : 'Rate' ?>
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Watchlist form -->
-                    <div class="col-md-4">
-                        <div class="card border-0 shadow-sm h-100">
-                            <div class="card-body">
-                                <h6 class="card-title"><i class="bi bi-bookmark-star"></i> Watchlist</h6>
-                                <form method="post" action="/action/watchlist_save.php">
-                                    <input type="hidden" name="movie_id" value="<?= $id ?>">
-                                    <input type="hidden" name="redirect" value="/movie.php?id=<?= $id ?>">
-                                    <div class="d-flex align-items-center gap-2">
-                                        <select name="status" class="form-select form-select-sm" style="width:auto">
-                                            <?php foreach (['plan_to_watch' => 'Plan to Watch', 'watching' => 'Watching', 'completed' => 'Completed'] as $val => $label): ?>
-                                                <option value="<?= $val ?>" <?= $myWatchlist === $val ? 'selected' : '' ?>>
-                                                    <?= $label ?>
-                                                </option>
-                                            <?php endforeach; ?>
-                                        </select>
-                                        <button type="submit" class="btn btn-sm btn-primary">Save</button>
-                                        <?php if ($myWatchlist): ?>
-                                            <a href="/action/watchlist_remove.php?movie_id=<?= $id ?>&redirect=<?= urlencode('/movie.php?id=' . $id) ?>"
-                                                class="btn btn-sm btn-outline-danger"
-                                                onclick="return confirm('Remove from watchlist?')">
-                                                Remove
-                                            </a>
-                                        <?php endif; ?>
-                                    </div>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-
-                </div><!-- /row actions -->
-
-                <!-- Review form (upsert) -->
-                <div class="card border-0 shadow-sm mt-3">
-                    <div class="card-body">
-                        <h6 class="card-title"><i class="bi bi-chat-left-text"></i> Your Review</h6>
-                        <form method="post" action="/action/review_save.php">
-                            <input type="hidden" name="movie_id" value="<?= $id ?>">
-                            <input type="hidden" name="redirect" value="/movie.php?id=<?= $id ?>">
-                            <?php if ($myReview): ?>
-                                <input type="hidden" name="review_id" value="<?= (int)$myReview['id'] ?>">
-                            <?php endif; ?>
-                            <textarea name="review_text" class="form-control mb-2" rows="3"
-                                placeholder="Write your review…" required><?= e($myReview['review_text'] ?? '') ?></textarea>
-                            <button type="submit" class="btn btn-sm btn-success">
-                                <?= $myReview ? 'Update Review' : 'Post Review' ?>
-                            </button>
-                        </form>
-                    </div>
-                </div>
-
-            <?php else: ?>
-                <div class="alert alert-light border mt-3">
-                    <a href="/auth/login.php">Log in</a> to rate, review, or add to your watchlist.
-                </div>
+            <?php if ($movie['description']): ?>
+                <p class="movie-desc-short"><?= e($movie['description']) ?></p>
             <?php endif; ?>
-        </div><!-- /col right -->
-    </div><!-- /row -->
 
-    <!-- ── REVIEWS SECTION ── -->
-    <hr class="my-5">
-    <h4 class="mb-4 fw-bold"><i class="bi bi-chat-square-text"></i> Reviews (<?= count($reviews) ?>)</h4>
-
-    <?php if (empty($reviews)): ?>
-        <p class="text-muted">No reviews yet. Be the first!</p>
-    <?php endif; ?>
-
-    <?php foreach ($reviews as $rev): ?>
-        <div class="card review-card mb-3 shadow-sm">
-            <div class="card-body">
-                <div class="d-flex justify-content-between align-items-start">
-                    <div class="fw-semibold mb-1">
-                        <i class="bi bi-person-circle"></i> <?= e($rev['username']) ?>
-                        <small class="text-muted fw-normal ms-2"><?= e($rev['created_at']) ?></small>
+            <!-- Rating row + watchlist button -->
+            <div class="rating-row-movie">
+                <?php if ($movie['avg_rating']): ?>
+                    <div class="avg-rating-display">
+                        <span class="avg-score-big"><?= e($movie['avg_rating']) ?></span>
+                        <div class="avg-stars-col">
+                            <span class="stars-icons"><?= renderStars((float)$movie['avg_rating']) ?></span>
+                            <span class="rating-count"><?= (int)$movie['total_ratings'] ?> rating<?= $movie['total_ratings'] != 1 ? 's' : '' ?></span>
+                        </div>
                     </div>
-                    <div class="d-flex align-items-center gap-2">
-                        <!-- Like toggle -->
-                        <?php if ($user): ?>
-                            <?php $liked = in_array($rev['id'], $myLikedReviews, true); ?>
-                            <form method="post" action="/action/review_like_toggle.php" class="d-inline">
-                                <input type="hidden" name="review_id" value="<?= (int)$rev['id'] ?>">
-                                <input type="hidden" name="redirect" value="/movie.php?id=<?= $id ?>">
-                                <button type="submit" class="btn btn-sm btn-outline-<?= $liked ? 'danger' : 'secondary' ?> like-btn <?= $liked ? 'liked' : '' ?>">
-                                    <i class="bi bi-heart<?= $liked ? '-fill' : '' ?>"></i>
-                                    <?= (int)$rev['like_count'] ?>
+                <?php else: ?>
+                    <span class="text-muted" style="font-size:.82rem">No ratings yet</span>
+                <?php endif; ?>
+
+                <?php if ($user): ?>
+                    <?php if ($myWatchlist): ?>
+                        <div class="watchlist-form-inline">
+                            <form method="post" action="/action/watchlist_save.php" class="d-flex align-items-center gap-2 flex-wrap">
+                                <input type="hidden" name="movie_id" value="<?= $id ?>">
+                                <input type="hidden" name="redirect" value="/public/movie.php?id=<?= $id ?>">
+                                <select name="status" class="watchlist-select-sm">
+                                    <?php foreach (['plan_to_watch' => 'Plan to Watch', 'watching' => 'Watching', 'completed' => 'Completed'] as $val => $lbl): ?>
+                                        <option value="<?= $val ?>" <?= $myWatchlist === $val ? 'selected' : '' ?>><?= $lbl ?></option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <button type="submit" class="watchlist-btn-movie wl-active">
+                                    <i class="fa-solid fa-bookmark"></i> Update
                                 </button>
                             </form>
-                        <?php else: ?>
-                            <span class="text-muted small">
-                                <i class="bi bi-heart"></i> <?= (int)$rev['like_count'] ?>
-                            </span>
-                        <?php endif; ?>
-
-                        <!-- Delete (owner or admin) -->
-                        <?php if ($user && ($user['id'] === (int)($rev['user_id'] ?? 0) || $user['role'] === 'admin')): ?>
-                            <a href="/action/review_delete.php?review_id=<?= (int)$rev['id'] ?>&redirect=<?= urlencode('/movie.php?id=' . $id) ?>"
-                                class="btn btn-sm btn-outline-danger"
-                                onclick="return confirm('Delete this review?')">
-                                <i class="bi bi-trash"></i>
+                            <a href="/action/watchlist_remove.php?movie_id=<?= $id ?>&redirect=<?= urlencode('/public/movie.php?id=' . $id) ?>"
+                               class="watchlist-remove-link"
+                               onclick="return confirm('Remove from watchlist?')">
+                                <i class="fa-solid fa-trash-can"></i> Remove
                             </a>
+                        </div>
+                    <?php else: ?>
+                        <form method="post" action="/action/watchlist_save.php">
+                            <input type="hidden" name="movie_id" value="<?= $id ?>">
+                            <input type="hidden" name="redirect" value="/public/movie.php?id=<?= $id ?>">
+                            <input type="hidden" name="status" value="plan_to_watch">
+                            <button type="submit" class="watchlist-btn-movie">
+                                Add To Watch List
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                        </form>
+                    <?php endif; ?>
+                <?php else: ?>
+                    <a href="/auth/login.php" class="watchlist-btn-movie">
+                        Add To Watch List
+                        <i class="fa-solid fa-plus"></i>
+                    </a>
+                <?php endif; ?>
+            </div>
+        </div><!-- /movie-meta-details -->
+    </div><!-- /movie-info-inner -->
+</div><!-- /movie-info-panel -->
+
+<!-- ── CAST & CREW ───────────────────────────────────────── -->
+<?php if ($actors || $directors): ?>
+<div class="movie-section">
+    <div class="movie-section-title">
+        <i class="fa-solid fa-users"></i> Cast &amp; Crew
+    </div>
+    <div class="cast-scroll-wrap">
+        <div class="cast-scroll" id="castScrollRow">
+
+            <!-- Directors first -->
+            <?php foreach ($directors as $d): ?>
+                <div class="cast-card">
+                    <div class="cast-initials">
+                        <?= e(mb_strtoupper(mb_substr($d, 0, 2))) ?>
+                    </div>
+                    <div class="cast-info">
+                        <div class="cast-name"><?= e($d) ?></div>
+                        <div class="cast-role">Director</div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+
+            <!-- Actors -->
+            <?php foreach ($actors as $a): ?>
+                <div class="cast-card">
+                    <?php if ($a['photo_path']): ?>
+                        <img src="<?= e(posterUrl($a['photo_path'])) ?>" alt="<?= e($a['name']) ?>">
+                    <?php else: ?>
+                        <div class="cast-initials">
+                            <?= e(mb_strtoupper(mb_substr($a['name'], 0, 2))) ?>
+                        </div>
+                    <?php endif; ?>
+                    <div class="cast-info">
+                        <div class="cast-name"><?= e($a['name']) ?></div>
+                        <?php if ($a['role_name']): ?>
+                            <div class="cast-role"><?= e($a['role_name']) ?></div>
                         <?php endif; ?>
                     </div>
                 </div>
-                <p class="mb-0 mt-1"><?= nl2br(e($rev['review_text'])) ?></p>
+            <?php endforeach; ?>
+
+        </div><!-- /cast-scroll -->
+        <button class="cast-scroll-arrow" onclick="document.getElementById('castScrollRow').scrollBy({left:220,behavior:'smooth'})">
+            <i class="fa-solid fa-chevron-right"></i>
+        </button>
+    </div>
+</div>
+<?php endif; ?>
+
+<!-- ── REVIEWS LIST ──────────────────────────────────────── -->
+<div class="movie-section">
+    <div class="movie-section-title">
+        <i class="fa-regular fa-comment"></i>
+        Reviews
+        <span style="font-size:.78rem;font-weight:400;color:var(--text-muted)">(<?= count($reviews) ?>)</span>
+    </div>
+
+    <?php if (empty($reviews)): ?>
+        <p class="text-muted" style="font-size:.85rem">No reviews yet. Be the first!</p>
+    <?php endif; ?>
+
+    <?php foreach ($reviews as $idx => $rev): ?>
+        <?php $liked = in_array($rev['id'], $myLikedReviews, true); ?>
+        <div class="review-card-movie" style="animation-delay:<?= $idx * 0.07 ?>s">
+            <div class="review-header-movie">
+                <!-- Reviewer info -->
+                <div class="reviewer-row">
+                    <div class="reviewer-avatar-circle">
+                        <?php if ($rev['profile_photo']): ?>
+                            <img src="<?= e(posterUrl($rev['profile_photo'])) ?>" alt="<?= e($rev['username']) ?>">
+                        <?php else: ?>
+                            <?= e(mb_strtoupper(mb_substr($rev['username'], 0, 1))) ?>
+                        <?php endif; ?>
+                    </div>
+                    <div class="reviewer-meta">
+                        <div class="rev-name"><?= e($rev['username']) ?></div>
+                        <div class="rev-date"><?= e(date('j/n/Y', strtotime($rev['created_at']))) ?></div>
+                    </div>
+                </div>
+                <!-- Like / Delete actions (top-right) -->
+                <div class="review-actions-right">
+                    <?php if ($user): ?>
+                        <form method="post" action="/action/review_like_toggle.php" style="display:inline">
+                            <input type="hidden" name="review_id" value="<?= (int)$rev['id'] ?>">
+                            <input type="hidden" name="redirect" value="/public/movie.php?id=<?= $id ?>">
+                            <button type="submit" class="like-btn-movie <?= $liked ? 'liked' : '' ?>">
+                                <i class="fa-<?= $liked ? 'solid' : 'regular' ?> fa-heart"></i>
+                                <?= (int)$rev['like_count'] ?>
+                            </button>
+                        </form>
+                    <?php else: ?>
+                        <span class="like-btn-movie" style="cursor:default">
+                            <i class="fa-regular fa-heart"></i> <?= (int)$rev['like_count'] ?>
+                        </span>
+                    <?php endif; ?>
+
+                    <?php if ($user && ($user['id'] === (int)($rev['user_id'] ?? 0) || $user['role'] === 'admin')): ?>
+                        <a href="/action/review_delete.php?review_id=<?= (int)$rev['id'] ?>&redirect=<?= urlencode('/public/movie.php?id=' . $id) ?>"
+                           class="delete-btn-movie"
+                           onclick="return confirm('Delete this review?')">
+                            <i class="fa-regular fa-trash-can"></i>
+                        </a>
+                    <?php endif; ?>
+                </div>
             </div>
+
+            <p class="review-text-body"><?= nl2br(e($rev['review_text'])) ?></p>
         </div>
     <?php endforeach; ?>
-</main>
+</div><!-- /reviews section -->
+
+<!-- ── MY RATING & REVIEW ────────────────────────────────── -->
+<div class="my-rating-section">
+    <div class="my-rating-inner">
+        <?php if ($user): ?>
+            <div class="my-rating-label">My Rating</div>
+            <div class="my-rating-title-sm"><?= e(mb_strtoupper($movie['title'])) ?> <?php if ($movie['release_year']): ?>(<?= e($movie['release_year']) ?>)<?php endif; ?></div>
+            <div class="my-rating-question">What did you think of it?</div>
+            <div class="my-rating-hint">Pick a star rating and leave a comment</div>
+
+            <!-- Rating -->
+            <div class="star-rating-wrap">
+                <form method="post" action="/action/rating_save.php" class="d-flex align-items-center gap-3 flex-wrap">
+                    <input type="hidden" name="movie_id" value="<?= $id ?>">
+                    <input type="hidden" name="redirect" value="/public/movie.php?id=<?= $id ?>">
+                    <span class="star-rating-label">Your rating:</span>
+                    <select name="score" id="ratingSelect" class="star-rating-input" required>
+                        <option value="">-- Pick --</option>
+                        <?php for ($s = 1; $s <= 5; $s++): ?>
+                            <option value="<?= $s ?>" <?= (int)$myRating === $s ? 'selected' : '' ?>>
+                                <?= $s ?> Star<?= $s > 1 ? 's' : '' ?>
+                            </option>
+                        <?php endfor; ?>
+                    </select>
+                    <button type="submit" class="submit-review-btn" style="padding:7px 18px">
+                        <?= $myRating !== false && $myRating !== null ? 'Update Rating' : 'Rate' ?>
+                    </button>
+                </form>
+            </div>
+
+            <!-- Review textarea -->
+            <div class="comment-box-movie">
+                <form method="post" action="/action/review_save.php">
+                    <input type="hidden" name="movie_id" value="<?= $id ?>">
+                    <input type="hidden" name="redirect" value="/public/movie.php?id=<?= $id ?>">
+                    <?php if ($myReview): ?>
+                        <input type="hidden" name="review_id" value="<?= (int)$myReview['id'] ?>">
+                    <?php endif; ?>
+                    <textarea name="review_text"
+                              placeholder="Leave a comment…"
+                              required><?= e($myReview['review_text'] ?? '') ?></textarea>
+                    <div class="comment-submit-row">
+                        <span style="font-size:.75rem;color:var(--text-muted)">
+                            <?= $myReview ? 'Editing your review' : 'Writing a new review' ?>
+                        </span>
+                        <button type="submit" class="submit-review-btn">
+                            <i class="fa-solid fa-paper-plane"></i>
+                            <?= $myReview ? 'Update Review' : 'Post Review' ?>
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+        <?php else: ?>
+            <div class="login-prompt-box">
+                <i class="fa-solid fa-star" style="color:var(--mv-star);margin-right:6px"></i>
+                <a href="/auth/login.php">Log in</a> to rate, review, or add this movie to your watchlist.
+            </div>
+        <?php endif; ?>
+    </div>
+</div><!-- /my-rating-section -->
+
 <script src="https://cdn.jsdelivr.net/npm/star-rating.js@4.3.0/dist/star-rating.min.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
+    if (document.getElementById('ratingSelect')) {
         new StarRating('#ratingSelect', {
             maxStars: 5,
             tooltip: false,
             labels: ['Terrible', 'Bad', 'Average', 'Good', 'Excellent'],
         });
-    });
+    }
+});
 </script>
 <?php require_once __DIR__ . '/../app/views/partials/footer.php'; ?>
