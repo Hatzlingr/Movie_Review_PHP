@@ -43,12 +43,7 @@ require_once __DIR__ . '/app/views/partials/navbar.php';
 
 
 <section class="hero">
-    <?php
-    $heroBanner = !empty($heroMovie['banner_path'])
-        ? '/public/' . ltrim($heroMovie['banner_path'], '/')
-        : 'https://image.tmdb.org/t/p/original/gKkl37BQuKTanygYQG1pyYgLVgf.jpg';
-    ?>
-    <img class="hero-bg" src="<?= e($heroBanner) ?>" alt="Banner">
+    <img class="hero-bg" src="<?= e(imageUrl($heroMovie['banner_path'] ?? null, 'banner')) ?>" alt="Banner">
     <div class="hero-overlay"></div>
     <div class="container">
         <h5 class="text-center hero-title-top">BEST REVIEW ON <?= $monthName ?></h5>
@@ -56,7 +51,7 @@ require_once __DIR__ . '/app/views/partials/navbar.php';
         <?php if ($heroMovie): ?>
             <div class="row justify-content-center align-items-center mt-4 g-3">
                 <div class="col-6 col-md-3 text-center text-md-end">
-                    <img src="<?= e(posterUrl($heroMovie['poster_path'])) ?>"
+                    <img src="<?= e(imageUrl($heroMovie['poster_path'], 'poster')) ?>"
                         alt="<?= e($heroMovie['title']) ?>"
                         class="hero-poster">
                 </div>
@@ -101,9 +96,14 @@ require_once __DIR__ . '/app/views/partials/navbar.php';
             <?php else: ?>
                 <?php foreach ($movies as $m): ?>
                     <div class="movie-card">
-                        <img src="<?= e(posterUrl($m['poster_path'])) ?>"
+                        <img src="<?= e(imageUrl($m['poster_path'], 'poster')) ?>"
                             alt="<?= e($m['title']) ?>">
                         <div class="movie-title"><?= e(strtoupper($m['title'])) ?> (<?= e($m['release_year'] ?? '?') ?>)</div>
+                        <?php if ($m['duration_minutes']): ?>
+                            <div class="movie-duration" style="font-size:.75rem;color:var(--text-muted);margin-bottom:4px">
+                                <i class="fa-regular fa-clock"></i> <?= formatDuration((int)$m['duration_minutes']) ?>
+                            </div>
+                        <?php endif; ?>
                         <div class="movie-rating">
                             <?php if ($m['avg_rating']): ?>
                                 <?= renderStars((float)$m['avg_rating']) ?>
@@ -135,7 +135,7 @@ require_once __DIR__ . '/app/views/partials/navbar.php';
             <div class="horizontal-scroll">
                 <?php foreach ($watchlist as $w): ?>
                     <div class="movie-card">
-                        <img src="<?= e(posterUrl($w['poster_path'])) ?>"
+                        <img src="<?= e(imageUrl($w['poster_path'], 'poster')) ?>"
                             alt="<?= e($w['title']) ?>">
                         <div class="movie-title"><?= e(strtoupper($w['title'])) ?> (<?= e($w['release_year'] ?? '?') ?>)</div>
                         <div class="movie-rating">
@@ -150,9 +150,6 @@ require_once __DIR__ . '/app/views/partials/navbar.php';
                         <?= watchlistStatusBtn($w['status']) ?>
                     </div>
                 <?php endforeach; ?>
-                <a href="/index.php" class="add-more-card text-decoration-none">
-                    <i class="fa-solid fa-circle-plus" style="font-size:3rem;color:#7a669f;"></i>
-                </a>
             </div>
         </div>
     <?php endif; ?>
@@ -168,25 +165,31 @@ require_once __DIR__ . '/app/views/partials/navbar.php';
                 <?php foreach ($reviews as $rv): ?>
                     <div class="review-card">
                         <div class="review-header">
-                            <div class="reviewer-info">
-                                <div class="reviewer-avatar"></div>
-                                <div>
-                                    <p class="reviewer-name"><?= e($rv['username']) ?></p>
-                                    <p class="review-date"><?= e(date('n/j/Y', strtotime($rv['created_at']))) ?></p>
+                            <div class="reviewer-row">
+                                <div class="reviewer-avatar-circle">
+                                    <?php if ($rv['profile_photo']): ?>
+                                        <img src="<?= e(imageUrl($rv['profile_photo'], 'avatar')) ?>" alt="<?= e($rv['username']) ?>">
+                                    <?php else: ?>
+                                        <?= e(mb_strtoupper(mb_substr($rv['username'], 0, 1))) ?>
+                                    <?php endif; ?>
+                                </div>
+                                <div class="reviewer-meta">
+                                    <div class="rev-name"><?= e($rv['username']) ?></div>
+                                    <div class="rev-date"><?= e(date('n/j/Y', strtotime($rv['created_at']))) ?></div>
                                 </div>
                             </div>
                             <div class="review-score">
                                 <?php if ($rv['user_score']): ?>
                                     <?= renderStars((float)$rv['user_score']) ?>
                                 <?php else: ?>
-                                    —
+                                    &mdash;
                                 <?php endif; ?>
                             </div>
                         </div>
-                        <p class="review-text"><?= e($rv['review_text']) ?></p>
+                        <p class="review-text-body"><?= e($rv['review_text']) ?></p>
                         <div class="review-actions">
                             <span><i class="fa-regular fa-thumbs-up me-1"></i><?= (int)$rv['like_count'] ?></span>
-                            <span><i class="fa-regular fa-comment me-1"></i><a href="/public/movie.php?id=<?= (int)$rv['movie_id'] ?>" class="text-decoration-none" style="color:var(--text-muted)"><?= e($rv['title']) ?></a></span>
+                            <span><i class="fa-regular fa-comment me-1"></i><a href="/public/movie.php?id=<?= (int)$rv['movie_id'] ?>"><?= e($rv['title']) ?></a></span>
                         </div>
                     </div>
                 <?php endforeach; ?>

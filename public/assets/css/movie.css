@@ -1,16 +1,13 @@
 /* ── Movie Detail Page ─────────────────────────────────────────
    Uses existing variables from base.css:
-     --bg-main, --bg-card, --btn-outline, --btn-outline-hover, --text-muted
+     --bg-main, --bg-card, --card2, --border,
+     --btn-outline, --btn-outline-hover, --text-muted, --star-color, --star-off
    Adds page-specific tokens:
-     --mv-card2, --mv-accent, --mv-border, --mv-star
+     --mv-accent
 ──────────────────────────────────────────────────────────────── */
 
 :root {
-    --mv-card2:  #312a4a;
     --mv-accent: #a855f7;
-    --mv-border: rgba(122, 102, 159, 0.25);
-    --mv-star:   #f59e0b;
-    --mv-star-off: #4a4060;
 }
 
 /* ── Sticky navbar override for movie page ─────────────────── */
@@ -18,30 +15,15 @@ body.movie-page .navbar-custom {
     position: sticky;
     top: 0;
     background: var(--bg-main);
-    border-bottom: 1px solid var(--mv-border);
+    border-bottom: 1px solid var(--border);
 }
 
 /* ── HERO BANNER ────────────────────────────────────────────── */
 .movie-hero {
     position: relative;
-    height: 260px;
-    overflow: hidden;
-    background: var(--mv-card2);
+    height: 500px;
 }
 
-.movie-hero img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center top;
-}
-
-.movie-hero::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: linear-gradient(to bottom, rgba(28,21,39,.25), rgba(28,21,39,.95));
-}
 
 /* ── MOVIE INFO PANEL ───────────────────────────────────────── */
 .movie-info-panel {
@@ -73,7 +55,7 @@ body.movie-page .navbar-custom {
     object-fit: cover;
     border-radius: 12px;
     box-shadow: 0 10px 32px rgba(0,0,0,.75);
-    border: 2px solid var(--mv-border);
+    border: 2px solid var(--border);
     display: block;
 }
 
@@ -81,13 +63,13 @@ body.movie-page .navbar-custom {
     width: 130px;
     height: 190px;
     border-radius: 12px;
-    background: var(--mv-card2);
+    background: var(--card2);
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 2.5rem;
     color: var(--btn-outline);
-    border: 2px solid var(--mv-border);
+    border: 2px solid var(--border);
 }
 
 .movie-meta-details {
@@ -180,7 +162,7 @@ body.movie-page .navbar-custom {
 }
 
 .avg-stars-col .stars-icons {
-    color: var(--mv-star);
+    color: var(--star-color);
     font-size: 0.78rem;
     line-height: 1;
 }
@@ -227,7 +209,7 @@ body.movie-page .navbar-custom {
 }
 
 .watchlist-select-sm {
-    background: var(--mv-card2);
+    background: var(--card2);
     border: 1px solid var(--btn-outline);
     color: #fff;
     border-radius: 8px;
@@ -265,7 +247,7 @@ body.movie-page .navbar-custom {
     color: #fff;
     margin-bottom: 16px;
     padding-bottom: 8px;
-    border-bottom: 1px solid var(--mv-border);
+    border-bottom: 1px solid var(--border);
     display: flex;
     align-items: center;
     gap: 8px;
@@ -295,7 +277,7 @@ body.movie-page .navbar-custom {
     border-radius: 10px;
     overflow: hidden;
     background: var(--bg-card);
-    border: 1px solid var(--mv-border);
+    border: 1px solid var(--border);
 }
 
 .cast-card img {
@@ -308,7 +290,7 @@ body.movie-page .navbar-custom {
 .cast-initials {
     width: 100px;
     height: 110px;
-    background: var(--mv-card2);
+    background: var(--card2);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -337,8 +319,8 @@ body.movie-page .navbar-custom {
     width: 34px;
     height: 34px;
     border-radius: 50%;
-    background: var(--mv-card2);
-    border: 1px solid var(--mv-border);
+    background: var(--card2);
+    border: 1px solid var(--border);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -354,7 +336,7 @@ body.movie-page .navbar-custom {
 /* ── REVIEW CARDS ───────────────────────────────────────────── */
 .review-card-movie {
     background: var(--bg-card);
-    border: 1px solid var(--mv-border);
+    border: 1px solid var(--border);
     border-radius: 14px;
     padding: 16px;
     margin-bottom: 14px;
@@ -384,7 +366,7 @@ body.movie-page .navbar-custom {
     width: 38px;
     height: 38px;
     border-radius: 50%;
-    background: var(--mv-card2);
+    background: var(--card2);
     border: 2px solid var(--btn-outline);
     display: flex;
     align-items: center;
@@ -433,7 +415,7 @@ body.movie-page .navbar-custom {
     display: flex;
     justify-content: flex-end;
     gap: 8px;
-    border-top: 1px solid var(--mv-border);
+    border-top: 1px solid var(--border);
     padding-top: 10px;
 }
 
@@ -475,7 +457,7 @@ body.movie-page .navbar-custom {
 
 /* ── MY RATING / REVIEW SECTION ─────────────────────────────── */
 .my-rating-section {
-    border-top: 1px solid var(--mv-border);
+    border-top: 1px solid var(--border);
     background: rgba(49, 42, 74, 0.45);
     padding: 28px 20px 40px;
 }
@@ -517,7 +499,7 @@ body.movie-page .navbar-custom {
 /* Star rating widget wrapper */
 .star-rating-wrap {
     background: var(--bg-card);
-    border: 1.5px solid var(--mv-border);
+    border: 1.5px solid var(--border);
     border-radius: 12px;
     padding: 18px 20px;
     margin-bottom: 14px;
@@ -532,13 +514,23 @@ body.movie-page .navbar-custom {
     color: var(--text-muted);
 }
 
-/* Override star-rating.js widget colors to fit the dark theme */
-.star-rating .gl-star-full  { color: var(--mv-star); }
-.star-rating .gl-star-empty { color: var(--mv-star-off); }
+/* Custom star input icons */
+.star-input-icon {
+    font-size: 1.4rem;
+    cursor: pointer;
+    color: var(--star-off);
+    transition: color 0.15s, transform 0.1s;
+}
+.star-input-icon.fa-solid {
+    color: var(--star-color);
+}
+.star-input-icon:hover {
+    transform: scale(1.2);
+}
 
 .comment-box-movie {
     background: var(--bg-card);
-    border: 1.5px solid var(--mv-border);
+    border: 1.5px solid var(--border);
     border-radius: 12px;
     padding: 14px 16px;
 }
@@ -563,7 +555,7 @@ body.movie-page .navbar-custom {
     justify-content: space-between;
     align-items: center;
     padding-top: 10px;
-    border-top: 1px solid var(--mv-border);
+    border-top: 1px solid var(--border);
     margin-top: 8px;
     gap: 10px;
     flex-wrap: wrap;
@@ -584,10 +576,42 @@ body.movie-page .navbar-custom {
 
 .submit-review-btn:hover { background: var(--mv-accent); transform: scale(1.03); }
 
+/* ── Utility classes (replaces inline styles) ──────────────── */
+.movie-year-sub {
+    font-weight: 400;
+    font-size: 1.1rem;
+    opacity: .7;
+}
+
+.no-rating-text  { font-size: .82rem; }
+.no-reviews-text { font-size: .85rem; }
+
+.review-count-sub {
+    font-size: .78rem;
+    font-weight: 400;
+    color: var(--text-muted);
+}
+
+.form-inline-block { display: inline; }
+
+.like-btn-static { cursor: default; }
+
+.submit-review-btn--rate { padding: 7px 18px; }
+
+.review-status-hint {
+    font-size: .75rem;
+    color: var(--text-muted);
+}
+
+.login-star-icon {
+    color: var(--star-color);
+    margin-right: 6px;
+}
+
 /* login prompt */
 .login-prompt-box {
     background: var(--bg-card);
-    border: 1px solid var(--mv-border);
+    border: 1px solid var(--border);
     border-radius: 12px;
     padding: 18px 20px;
     font-size: 0.85rem;
@@ -611,5 +635,5 @@ body.movie-page .navbar-custom {
     .rating-row-movie { justify-content: center; }
     .movie-title-display { font-size: 1.3rem; }
     .avg-score-big { font-size: 1.6rem; }
-    .movie-hero { height: 200px; }
+    .movie-hero { height: 240px; }
 }

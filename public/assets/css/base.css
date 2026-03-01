@@ -3,9 +3,13 @@
 :root {
     --bg-main: #1c1527;
     --bg-card: #2f2543;
+    --card2:   #312a4a;
+    --border:  rgba(122, 102, 159, 0.25);
     --btn-outline: #7a669f;
     --btn-outline-hover: #9c89c4;
     --text-muted: #a9a2b8;
+    --star-color: #f1c40f;
+    --star-off:   #4a4060;
 }
 
 body {
