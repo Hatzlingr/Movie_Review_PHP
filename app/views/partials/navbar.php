@@ -5,9 +5,9 @@
 <!-- ===== NAVBAR ===== -->
 <nav class="navbar-custom">
     <div class="container d-flex justify-content-between align-items-center">
-        <a href="/public/index.php" class="mb-0 fw-bold text-white text-decoration-none" style="letter-spacing:1px;">ELITISRIPIW</a>
+        <a href="/index.php" class="mb-0 fw-bold text-white text-decoration-none" style="letter-spacing:1px;">ELITISRIPIW</a>
         <div class="d-flex align-items-center gap-3">
-            <form method="get" action="/public/index.php" class="mb-0">
+            <form method="get" action="/index.php" class="mb-0">
                 <div class="search-wrapper">
                     <i class="fa-solid fa-search"></i>
                     <input type="text" name="q" class="search-input"

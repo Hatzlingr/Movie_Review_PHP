@@ -34,47 +34,20 @@ if ($currentUser) {
 // ── Most liked reviews ───────────────────────────────────────────────────────
 $reviews = $repo->getMostLikedReviews(5);
 
-// ── Helpers ──────────────────────────────────────────────────────────────────
-function renderStars(float $score): string
-{
-    $full  = (int) floor($score);
-    $half  = ($score - $full) >= 0.5 ? 1 : 0;
-    $empty = 5 - $full - $half;
-    $html  = '';
-    for ($i = 0; $i < $full; $i++) $html .= '<i class="fa-solid fa-star"></i>';
-    if ($half)                        $html .= '<i class="fa-regular fa-star-half-stroke"></i>';
-    for ($i = 0; $i < $empty; $i++) $html .= '<i class="fa-regular fa-star"></i>';
-    return $html;
-}
-
-function posterUrl(?string $path): string
-{
-    if (!$path) return 'https://placehold.co/220x330/2f2543/ffffff?text=No+Poster';
-    if (str_starts_with($path, 'http')) return $path;
-    return '/public/' . ltrim($path, '/');
-}
-
-function watchlistStatusBtn(string $status): string
-{
-    return match ($status) {
-        'watching'      => '<button class="btn-watching w-100">Watching</button>',
-        'completed'     => '<button class="btn-completed w-100">Completed</button>',
-        default         => '<button class="btn-plan w-100">Plan To Watch</button>',
-    };
-}
-
 // ── Page title & header ──────────────────────────────────────────────────────
-$pageTitle        = $q ? 'Search: ' . $q : 'ELITISRIPIW';
-// index.php manages its own layout
+$pageTitle = $q ? 'Search: ' . $q : 'ELITISRIPIW';
 require_once __DIR__ . '/app/views/partials/header.php';
 require_once __DIR__ . '/app/views/partials/navbar.php';
-
-$heroBanner = !empty($heroMovie['banner_path'])
-    ? '/public/' . ltrim($heroMovie['banner_path'], '/')
-    : 'https://image.tmdb.org/t/p/original/gKkl37BQuKTanygYQG1pyYgLVgf.jpg';
 ?>
 
+
+
 <section class="hero">
+    <?php
+    $heroBanner = !empty($heroMovie['banner_path'])
+        ? '/public/' . ltrim($heroMovie['banner_path'], '/')
+        : 'https://image.tmdb.org/t/p/original/gKkl37BQuKTanygYQG1pyYgLVgf.jpg';
+    ?>
     <img class="hero-bg" src="<?= e($heroBanner) ?>" alt="Banner">
     <div class="hero-overlay"></div>
     <div class="container">
@@ -91,10 +64,14 @@ $heroBanner = !empty($heroMovie['banner_path'])
                     <h2 class="fw-bold mb-2"><?= e(strtoupper($heroMovie['title'])) ?></h2>
                     <p class="hero-desc mb-3"><?= e($heroMovie['description'] ?? '') ?></p>
                     <div class="d-flex align-items-center justify-content-center justify-content-md-start">
-                        <span class="display-5 fw-bold me-3"><?= e($heroMovie['avg_rating'] ?? '—') ?></span>
-                        <div class="text-white fs-5">
-                            <?= renderStars((float)($heroMovie['avg_rating'] ?? 0)) ?>
-                        </div>
+                        <?php if ($heroMovie['avg_rating']): ?>
+                            <span class="display-5 fw-bold me-3"><?= e($heroMovie['avg_rating']) ?></span>
+                            <div style="color:#f1c40f; font-size:1.5rem; letter-spacing:2px;">
+                                <?= renderStars((float)$heroMovie['avg_rating']) ?>
+                            </div>
+                        <?php else: ?>
+                            <span class="text-muted fs-5">No ratings yet</span>
+                        <?php endif; ?>
                     </div>
                 </div>
                 <div class="col-3 col-md-1 text-center d-none d-md-block">
@@ -113,9 +90,7 @@ $heroBanner = !empty($heroMovie['banner_path'])
 
 <!-- ===== MAIN CONTENT ===== -->
 <div class="container mt-5 pb-5">
-
-    <?php flash_render(); ?>
-
+<?php flash_render(); ?>
     <!-- Movie List -->
     <h5 class="section-header">Movie List<?= $q ? ' — <em>' . e($q) . '</em>' : '' ?></h5>
     <div class="scroll-wrapper mb-5">
@@ -130,8 +105,12 @@ $heroBanner = !empty($heroMovie['banner_path'])
                             alt="<?= e($m['title']) ?>">
                         <div class="movie-title"><?= e(strtoupper($m['title'])) ?> (<?= e($m['release_year'] ?? '?') ?>)</div>
                         <div class="movie-rating">
-                            <?= $m['avg_rating'] ? e($m['avg_rating']) : '—' ?>
-                            <?php if ($m['avg_rating']): ?><i class="fa-solid fa-star"></i><?php endif; ?>
+                            <?php if ($m['avg_rating']): ?>
+                                <?= renderStars((float)$m['avg_rating']) ?>
+                                <span class="ms-1"><?= e($m['avg_rating']) ?></span>
+                            <?php else: ?>
+                                <span class="text-muted">—</span>
+                            <?php endif; ?>
                         </div>
                         <a href="/public/movie.php?id=<?= (int)$m['id'] ?>" class="btn-card text-center text-decoration-none d-block mb-1">See Details</a>
                         <?php if ($currentUser): ?>
@@ -160,8 +139,12 @@ $heroBanner = !empty($heroMovie['banner_path'])
                             alt="<?= e($w['title']) ?>">
                         <div class="movie-title"><?= e(strtoupper($w['title'])) ?> (<?= e($w['release_year'] ?? '?') ?>)</div>
                         <div class="movie-rating">
-                            <?= $w['avg_rating'] ? e($w['avg_rating']) : '—' ?>
-                            <?php if ($w['avg_rating']): ?><i class="fa-solid fa-star"></i><?php endif; ?>
+                            <?php if ($w['avg_rating']): ?>
+                                <?= renderStars((float)$w['avg_rating']) ?>
+                                <span class="ms-1"><?= e($w['avg_rating']) ?></span>
+                            <?php else: ?>
+                                <span class="text-muted">—</span>
+                            <?php endif; ?>
                         </div>
                         <a href="/public/movie.php?id=<?= (int)$w['id'] ?>" class="btn-card text-center text-decoration-none d-block mb-1">See Details</a>
                         <?= watchlistStatusBtn($w['status']) ?>
@@ -193,7 +176,11 @@ $heroBanner = !empty($heroMovie['banner_path'])
                                 </div>
                             </div>
                             <div class="review-score">
-                                <?= $rv['user_score'] ? e($rv['user_score']) . '/5' : '—' ?>
+                                <?php if ($rv['user_score']): ?>
+                                    <?= renderStars((float)$rv['user_score']) ?>
+                                <?php else: ?>
+                                    —
+                                <?php endif; ?>
                             </div>
                         </div>
                         <p class="review-text"><?= e($rv['review_text']) ?></p>
