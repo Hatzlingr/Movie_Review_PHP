@@ -54,7 +54,7 @@ $_current_path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
                 </a>
                 <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="navbarDropdown">
                     <li>
-                        <a class="dropdown-item" href="/public/index.php">
+                        <a class="dropdown-item" href="/index.php">
                             <i class="bi bi-house me-2"></i>Back to Site
                         </a>
                     </li>
@@ -92,7 +92,7 @@ $_current_path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
                         <?php endforeach; ?>
 
                         <div class="sb-sidenav-menu-heading">Site</div>
-                        <a class="nav-link" href="/public/index.php">
+                        <a class="nav-link" href="/index.php">
                             <div class="sb-nav-link-icon"><i class="bi bi-arrow-left-circle"></i></div>
                             Back to Site
                         </a>

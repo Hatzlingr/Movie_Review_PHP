@@ -10,7 +10,7 @@ require_once __DIR__ . '/../app/config/db.php';
 ensure_session();
 require_login();
 
-$redirect = $_POST['redirect'] ?? '/public/index.php';
+$redirect = $_POST['redirect'] ?? '/index.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     redirect($redirect);

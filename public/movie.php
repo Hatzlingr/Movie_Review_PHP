@@ -11,7 +11,7 @@ ensure_session();
 
 $id = (int) ($_GET['id'] ?? 0);
 if ($id <= 0) {
-    redirect('/public/index.php');
+    redirect('/index.php');
 }
 
 // ── Fetch movie ──────────────────────────────────────────────
@@ -28,7 +28,7 @@ $stmt->execute([':id' => $id]);
 $movie = $stmt->fetch();
 if (!$movie) {
     flash_set('danger', 'Movie not found.');
-    redirect('/public/index.php');
+    redirect('/index.php');
 }
 
 // ── Genres ───────────────────────────────────────────────────
@@ -115,7 +115,7 @@ require_once __DIR__ . '/../app/views/partials/navbar.php';
         <!-- ── LEFT: Poster ── -->
         <div class="col-md-3 text-center">
             <?php if ($movie['poster_path'] && file_exists(__DIR__ . '/' . $movie['poster_path'])): ?>
-                <img src="/public/<?= e($movie['poster_path']) ?>"
+                <img src="/<?= e($movie['poster_path']) ?>"
                     alt="<?= e($movie['title']) ?> poster"
                     class="movie-poster-lg w-100">
             <?php else: ?>
@@ -221,7 +221,7 @@ require_once __DIR__ . '/../app/views/partials/navbar.php';
                                 <h6 class="card-title"><i class="bi bi-bookmark-star"></i> Watchlist</h6>
                                 <form method="post" action="/action/watchlist_save.php">
                                     <input type="hidden" name="movie_id" value="<?= $id ?>">
-                                    <input type="hidden" name="redirect" value="/public/movie.php?id=<?= $id ?>">
+                                    <input type="hidden" name="redirect" value="/movie.php?id=<?= $id ?>">
                                     <div class="d-flex align-items-center gap-2">
                                         <select name="status" class="form-select form-select-sm" style="width:auto">
                                             <?php foreach (['plan_to_watch' => 'Plan to Watch', 'watching' => 'Watching', 'completed' => 'Completed'] as $val => $label): ?>
@@ -232,7 +232,7 @@ require_once __DIR__ . '/../app/views/partials/navbar.php';
                                         </select>
                                         <button type="submit" class="btn btn-sm btn-primary">Save</button>
                                         <?php if ($myWatchlist): ?>
-                                            <a href="/action/watchlist_remove.php?movie_id=<?= $id ?>&redirect=<?= urlencode('/public/movie.php?id=' . $id) ?>"
+                                            <a href="/action/watchlist_remove.php?movie_id=<?= $id ?>&redirect=<?= urlencode('/movie.php?id=' . $id) ?>"
                                                 class="btn btn-sm btn-outline-danger"
                                                 onclick="return confirm('Remove from watchlist?')">
                                                 Remove
@@ -252,7 +252,7 @@ require_once __DIR__ . '/../app/views/partials/navbar.php';
                         <h6 class="card-title"><i class="bi bi-chat-left-text"></i> Your Review</h6>
                         <form method="post" action="/action/review_save.php">
                             <input type="hidden" name="movie_id" value="<?= $id ?>">
-                            <input type="hidden" name="redirect" value="/public/movie.php?id=<?= $id ?>">
+                            <input type="hidden" name="redirect" value="/movie.php?id=<?= $id ?>">
                             <?php if ($myReview): ?>
                                 <input type="hidden" name="review_id" value="<?= (int)$myReview['id'] ?>">
                             <?php endif; ?>
@@ -295,7 +295,7 @@ require_once __DIR__ . '/../app/views/partials/navbar.php';
                             <?php $liked = in_array($rev['id'], $myLikedReviews, true); ?>
                             <form method="post" action="/action/review_like_toggle.php" class="d-inline">
                                 <input type="hidden" name="review_id" value="<?= (int)$rev['id'] ?>">
-                                <input type="hidden" name="redirect" value="/public/movie.php?id=<?= $id ?>">
+                                <input type="hidden" name="redirect" value="/movie.php?id=<?= $id ?>">
                                 <button type="submit" class="btn btn-sm btn-outline-<?= $liked ? 'danger' : 'secondary' ?> like-btn <?= $liked ? 'liked' : '' ?>">
                                     <i class="bi bi-heart<?= $liked ? '-fill' : '' ?>"></i>
                                     <?= (int)$rev['like_count'] ?>
@@ -309,7 +309,7 @@ require_once __DIR__ . '/../app/views/partials/navbar.php';
 
                         <!-- Delete (owner or admin) -->
                         <?php if ($user && ($user['id'] === (int)($rev['user_id'] ?? 0) || $user['role'] === 'admin')): ?>
-                            <a href="/action/review_delete.php?review_id=<?= (int)$rev['id'] ?>&redirect=<?= urlencode('/public/movie.php?id=' . $id) ?>"
+                            <a href="/action/review_delete.php?review_id=<?= (int)$rev['id'] ?>&redirect=<?= urlencode('/movie.php?id=' . $id) ?>"
                                 class="btn btn-sm btn-outline-danger"
                                 onclick="return confirm('Delete this review?')">
                                 <i class="bi bi-trash"></i>

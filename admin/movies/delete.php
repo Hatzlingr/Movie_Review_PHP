@@ -25,13 +25,13 @@ if (!$movie) {
 }
 
 // Delete poster file
-if ($movie['poster_path'] && file_exists(__DIR__ . '/../../public/' . $movie['poster_path'])) {
-    @unlink(__DIR__ . '/../../public/' . $movie['poster_path']);
+if ($movie['poster_path'] && file_exists(__DIR__ . '/../../' . $movie['poster_path'])) {
+    @unlink(__DIR__ . '/../../' . $movie['poster_path']);
 }
 
 // Delete banner file
-if ($movie['banner_path'] && file_exists(__DIR__ . '/../../public/' . $movie['banner_path'])) {
-    @unlink(__DIR__ . '/../../public/' . $movie['banner_path']);
+if ($movie['banner_path'] && file_exists(__DIR__ . '/../../' . $movie['banner_path'])) {
+    @unlink(__DIR__ . '/../../' . $movie['banner_path']);
 }
 
 $del = $pdo->prepare("DELETE FROM movies WHERE id = :id");

@@ -25,7 +25,7 @@ $_current_path = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
         <?php endforeach; ?>
     </ul>
     <hr class="border-secondary">
-    <a href="/public/index.php" class="nav-link text-secondary px-2 d-flex align-items-center gap-2">
+    <a href="/index.php" class="nav-link text-secondary px-2 d-flex align-items-center gap-2">
         <i class="bi bi-arrow-left-circle"></i> Back to Site
     </a>
 </div>

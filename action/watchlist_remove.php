@@ -11,7 +11,7 @@ ensure_session();
 require_login();
 
 $movieId  = (int) ($_GET['movie_id'] ?? 0);
-$redirect = $_GET['redirect'] ?? '/public/index.php';
+$redirect = $_GET['redirect'] ?? '/index.php';
 
 if ($movieId <= 0) {
     flash_set('danger', 'Invalid movie.');

@@ -62,11 +62,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $ext       = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'][$mime];
             $filename  = bin2hex(random_bytes(12)) . '.' . $ext;
-            $uploadDir = __DIR__ . '/../../public/uploads/posters/';
+            $uploadDir = __DIR__ . '/../../uploads/posters/';
             if (!is_dir($uploadDir)) mkdir($uploadDir, 0775, true);
             move_uploaded_file($file['tmp_name'], $uploadDir . $filename);
-            if ($posterPath && file_exists(__DIR__ . '/../../public/' . $posterPath)) {
-                @unlink(__DIR__ . '/../../public/' . $posterPath);
+            if ($posterPath && file_exists(__DIR__ . '/../../' . $posterPath)) {
+                @unlink(__DIR__ . '/../../' . $posterPath);
             }
             $posterPath = 'uploads/posters/' . $filename;
         }
@@ -86,11 +86,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         } else {
             $bext       = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'][$bmime];
             $bfilename  = bin2hex(random_bytes(12)) . '.' . $bext;
-            $buploadDir = __DIR__ . '/../../public/uploads/banner/';
+            $buploadDir = __DIR__ . '/../../uploads/banner/';
             if (!is_dir($buploadDir)) mkdir($buploadDir, 0775, true);
             move_uploaded_file($bfile['tmp_name'], $buploadDir . $bfilename);
-            if ($bannerPath && file_exists(__DIR__ . '/../../public/' . $bannerPath)) {
-                @unlink(__DIR__ . '/../../public/' . $bannerPath);
+            if ($bannerPath && file_exists(__DIR__ . '/../../' . $bannerPath)) {
+                @unlink(__DIR__ . '/../../' . $bannerPath);
             }
             $bannerPath = 'uploads/banner/' . $bfilename;
         }
@@ -214,9 +214,9 @@ require_once __DIR__ . '/../../app/views/partials/header_admin.php';
         <div class="card-body row g-4">
             <div class="col-md-6">
                 <label class="form-label fw-semibold">Poster <small class="text-muted">(JPG/PNG/WebP, max 2 MB)</small></label>
-                <?php if ($movie['poster_path'] && file_exists(__DIR__ . '/../../public/' . $movie['poster_path'])): ?>
+                <?php if ($movie['poster_path'] && file_exists(__DIR__ . '/../../' . $movie['poster_path'])): ?>
                     <div class="mb-2">
-                        <img src="/public/<?= e($movie['poster_path']) ?>" style="height:90px;border-radius:4px" alt="current poster">
+                        <img src="/<?= e($movie['poster_path']) ?>" style="height:90px;border-radius:4px" alt="current poster">
                         <small class="text-muted ms-2">Current poster</small>
                     </div>
                 <?php endif; ?>
@@ -224,9 +224,9 @@ require_once __DIR__ . '/../../app/views/partials/header_admin.php';
             </div>
             <div class="col-md-6">
                 <label class="form-label fw-semibold">Banner <small class="text-muted">(JPG/PNG/WebP, max 2 MB)</small></label>
-                <?php if ($movie['banner_path'] && file_exists(__DIR__ . '/../../public/' . $movie['banner_path'])): ?>
+                <?php if ($movie['banner_path'] && file_exists(__DIR__ . '/../../' . $movie['banner_path'])): ?>
                     <div class="mb-2">
-                        <img src="/public/<?= e($movie['banner_path']) ?>" style="height:90px;border-radius:4px" alt="current banner">
+                        <img src="/<?= e($movie['banner_path']) ?>" style="height:90px;border-radius:4px" alt="current banner">
                         <small class="text-muted ms-2">Current banner</small>
                     </div>
                 <?php endif; ?>

@@ -10,7 +10,7 @@
         <div class="d-flex align-items-center justify-content-between small">
             <div class="text-muted">&copy; <?= date('Y') ?> MovieReview &mdash; Built with PHP &amp; Bootstrap 5</div>
             <div>
-                <a href="/public/index.php" class="text-decoration-none text-muted">
+                <a href="/index.php" class="text-decoration-none text-muted">
                     <i class="bi bi-house me-1"></i>Back to Site
                 </a>
             </div>
