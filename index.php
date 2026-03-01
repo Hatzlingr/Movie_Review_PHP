@@ -90,7 +90,7 @@ require_once __DIR__ . '/app/views/partials/navbar.php';
 
 <!-- ===== MAIN CONTENT ===== -->
 <div class="container mt-5 pb-5">
-<?php flash_render(); ?>
+    <?php flash_render(); ?>
     <!-- Movie List -->
     <h5 class="section-header">Movie List<?= $q ? ' — <em>' . e($q) . '</em>' : '' ?></h5>
     <div class="scroll-wrapper mb-5">
