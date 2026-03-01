@@ -80,7 +80,7 @@
 }
 
 .movie-rating i {
-    color: #f1c40f;
+    color: var(--star-color);
     font-size: 0.7rem;
     margin-left: 2px;
 }
@@ -146,61 +146,81 @@
 
 /* Review Card */
 .review-card {
-    background-color: var(--bg-card);
-    border-radius: 15px;
-    padding: 20px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
     min-width: 300px;
     max-width: 300px;
+    flex-shrink: 0;
 }
 
 .review-header {
     display: flex;
+    align-items: center;
     justify-content: space-between;
-    align-items: flex-start;
-    margin-bottom: 15px;
+    margin-bottom: 10px;
+    gap: 8px;
 }
 
-.reviewer-info {
+.reviewer-row {
     display: flex;
     align-items: center;
     gap: 10px;
 }
 
-.reviewer-avatar {
-    width: 40px;
-    height: 40px;
-    background-color: #e0e0e0;
+.reviewer-avatar-circle {
+    width: 38px;
+    height: 38px;
     border-radius: 50%;
+    background: var(--card2);
+    border: 2px solid var(--btn-outline);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--btn-outline-hover);
     flex-shrink: 0;
+    overflow: hidden;
+    text-transform: uppercase;
 }
 
-.reviewer-name {
+.reviewer-avatar-circle img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.reviewer-meta .rev-name {
+    font-size: 0.85rem;
     font-weight: 700;
-    font-size: 0.95rem;
-    margin: 0;
+    color: #fff;
+    line-height: 1.2;
 }
 
-.review-date {
-    font-size: 0.75rem;
+.reviewer-meta .rev-date {
+    font-size: 0.7rem;
     color: var(--text-muted);
     margin: 0;
 }
 
 .review-score {
-    font-weight: 700;
-    font-size: 1.1rem;
+    font-size: 0.78rem;
+    color: var(--star-color);
     white-space: nowrap;
+    flex-shrink: 0;
 }
 
-.review-text {
-    font-size: 0.85rem;
+.review-text-body {
+    font-size: 0.82rem;
     color: #d1cde0;
+    line-height: 1.65;
+    margin-bottom: 12px;
     display: -webkit-box;
     -webkit-line-clamp: 6;
     -webkit-box-orient: vertical;
     overflow: hidden;
-    line-height: 1.5;
-    margin-bottom: 15px;
 }
 
 .review-actions {
@@ -211,6 +231,9 @@
     font-size: 0.85rem;
 }
 
-.review-actions i {
-    cursor: pointer;
+.review-actions a {
+    color: var(--text-muted);
+    text-decoration: none;
 }
+
+.review-actions a:hover { color: var(--btn-outline-hover); }

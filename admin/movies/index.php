@@ -61,7 +61,7 @@ require_once __DIR__ . '/../../app/views/partials/header_admin.php';
                         </td>
                         <td class="fw-semibold"><?= e($m['title']) ?></td>
                         <td class="text-muted"><?= e($m['release_year'] ?? '—') ?></td>
-                        <td class="text-muted"><?= $m['duration_minutes'] ? e($m['duration_minutes']) . ' min' : '—' ?></td>
+                        <td class="text-muted"><?= formatDuration((int)($m['duration_minutes'] ?? 0)) ?: '—' ?></td>
                         <td>
                             <?php if ($m['avg_rating']): ?>
                                 <span class="score-badge"><i class="bi bi-star-fill"></i> <?= e($m['avg_rating']) ?></span>

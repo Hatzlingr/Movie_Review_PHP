@@ -23,13 +23,13 @@ class MovieRepository
         $total = (int) $countStmt->fetchColumn();
 
         $stmt = $this->pdo->prepare(
-            "SELECT m.id, m.title, m.release_year, m.poster_path,
+            "SELECT m.id, m.title, m.release_year, m.poster_path, m.duration_minutes,
                     ROUND(AVG(r.score), 1) AS avg_rating,
                     COUNT(r.id)            AS total_ratings
              FROM movies m
              LEFT JOIN ratings r ON r.movie_id = m.id
              {$where}
-             GROUP BY m.id, m.title, m.release_year, m.poster_path
+             GROUP BY m.id, m.title, m.release_year, m.poster_path, m.duration_minutes
              ORDER BY m.release_year DESC
              LIMIT :lim OFFSET :off"
         );
@@ -94,6 +94,103 @@ class MovieRepository
         return $movie ?: null;
     }
 
+    public function getMovieById(int $id): ?array
+    {
+        $stmt = $this->pdo->prepare(
+            "SELECT m.*,
+                    ROUND(AVG(r.score), 1) AS avg_rating,
+                    COUNT(r.id)            AS total_ratings
+             FROM movies m
+             LEFT JOIN ratings r ON r.movie_id = m.id
+             WHERE m.id = :id
+             GROUP BY m.id"
+        );
+        $stmt->execute([':id' => $id]);
+        $movie = $stmt->fetch(PDO::FETCH_ASSOC);
+        return $movie ?: null;
+    }
+
+    public function getGenresByMovieId(int $id): array
+    {
+        $stmt = $this->pdo->prepare(
+            "SELECT g.name FROM genres g
+             JOIN movie_genres mg ON mg.genre_id = g.id
+             WHERE mg.movie_id = :id ORDER BY g.name"
+        );
+        $stmt->execute([':id' => $id]);
+        return $stmt->fetchAll(PDO::FETCH_COLUMN);
+    }
+
+    public function getActorsByMovieId(int $id): array
+    {
+        $stmt = $this->pdo->prepare(
+            "SELECT a.name, a.photo_path, ma.role_name
+             FROM actors a
+             JOIN movie_actors ma ON ma.actor_id = a.id
+             WHERE ma.movie_id = :id ORDER BY a.name"
+        );
+        $stmt->execute([':id' => $id]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getDirectorsByMovieId(int $id): array
+    {
+        $stmt = $this->pdo->prepare(
+            "SELECT d.name, d.photo_path FROM directors d
+             JOIN movie_directors md ON md.director_id = d.id
+             WHERE md.movie_id = :id ORDER BY d.name"
+        );
+        $stmt->execute([':id' => $id]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getReviewsByMovieId(int $id): array
+    {
+        $stmt = $this->pdo->prepare(
+            "SELECT rv.id, rv.user_id, rv.review_text, rv.created_at,
+                    u.username, u.profile_photo,
+                    COUNT(rl.id) AS like_count
+             FROM reviews rv
+             JOIN users u ON u.id = rv.user_id
+             LEFT JOIN review_likes rl ON rl.review_id = rv.id
+             WHERE rv.movie_id = :id
+             GROUP BY rv.id
+             ORDER BY rv.created_at DESC"
+        );
+        $stmt->execute([':id' => $id]);
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getUserMovieContext(int $uid, int $movieId): array
+    {
+        $rStmt = $this->pdo->prepare("SELECT score FROM ratings WHERE user_id=:u AND movie_id=:m");
+        $rStmt->execute([':u' => $uid, ':m' => $movieId]);
+        $myRating = $rStmt->fetchColumn();
+
+        $rvStmt = $this->pdo->prepare("SELECT id, review_text FROM reviews WHERE user_id=:u AND movie_id=:m");
+        $rvStmt->execute([':u' => $uid, ':m' => $movieId]);
+        $myReview = $rvStmt->fetch(PDO::FETCH_ASSOC) ?: null;
+
+        $wStmt = $this->pdo->prepare("SELECT status FROM watchlists WHERE user_id=:u AND movie_id=:m");
+        $wStmt->execute([':u' => $uid, ':m' => $movieId]);
+        $myWatchlist = $wStmt->fetchColumn() ?: null;
+
+        $lStmt = $this->pdo->prepare(
+            "SELECT rl.review_id FROM review_likes rl
+             JOIN reviews rv ON rv.id = rl.review_id
+             WHERE rl.user_id = :u AND rv.movie_id = :m"
+        );
+        $lStmt->execute([':u' => $uid, ':m' => $movieId]);
+        $myLikedReviews = $lStmt->fetchAll(PDO::FETCH_COLUMN);
+
+        return [
+            'myRating'       => ($myRating !== false ? $myRating : null),
+            'myReview'       => $myReview,
+            'myWatchlist'    => $myWatchlist,
+            'myLikedReviews' => $myLikedReviews,
+        ];
+    }
+
     public function getUserWatchlist(int $userId): array
     {
         $stmt = $this->pdo->prepare(
@@ -118,7 +215,7 @@ class MovieRepository
         $stmt = $this->pdo->prepare(
             "SELECT rv.id, rv.review_text, rv.created_at,
                     m.id AS movie_id, m.title, m.release_year, m.poster_path,
-                    u.username,
+                    u.username, u.profile_photo,
                     COUNT(rl.id) AS like_count,
                     (
                         SELECT rt2.score
@@ -133,7 +230,7 @@ class MovieRepository
              JOIN users u ON u.id = rv.user_id
              LEFT JOIN review_likes rl ON rl.review_id = rv.id
              GROUP BY rv.id, rv.review_text, rv.created_at,
-                      m.id, m.title, m.release_year, m.poster_path, u.username
+                      m.id, m.title, m.release_year, m.poster_path, u.username, u.profile_photo
              ORDER BY like_count DESC, rv.created_at DESC
              LIMIT :lim"
         );

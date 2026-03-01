@@ -45,13 +45,33 @@ function renderStars(float $score): string
 }
 
 /**
- * Resolve a poster path to a public URL.
+ * Resolve any image path to a public URL.
+ * $type: 'poster' | 'banner' | 'actor' | 'director' | 'avatar'
  */
-function posterUrl(?string $path): string
+function imageUrl(?string $path, string $type = 'poster'): string
 {
-    if (!$path) return 'https://placehold.co/220x330/2f2543/ffffff?text=No+Poster';
-    if (str_starts_with($path, 'http')) return $path;
+    if ($path && str_starts_with($path, 'http')) return $path;
+
+    $placeholders = [
+        'poster'   => 'https://placehold.co/220x330/2f2543/ffffff?text=No+Poster',
+        'banner'   => 'https://placehold.co/1280x720/2f2543/ffffff?text=No+Banner',
+        'actor'    => 'https://placehold.co/150x150/2f2543/ffffff?text=No+Photo',
+        'director' => 'https://placehold.co/150x150/2f2543/ffffff?text=No+Photo',
+        'avatar'   => 'https://placehold.co/80x80/2f2543/ffffff?text=?',
+    ];
+
+    if (!$path) return $placeholders[$type] ?? $placeholders['poster'];
     return '/public/' . ltrim($path, '/');
+}
+/**
+ * Format duration in minutes to "Xh Ym" string.
+ */
+function formatDuration(?int $minutes): string
+{
+    if (!$minutes || $minutes <= 0) return '';
+    $h = (int) floor($minutes / 60);
+    $m = $minutes % 60;
+    return ($h ? $h . 'h ' : '') . ($m ? $m . 'm' : '');
 }
 
 /**
