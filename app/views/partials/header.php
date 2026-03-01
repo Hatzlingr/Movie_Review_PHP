@@ -27,4 +27,4 @@ $_q = e($_GET['q'] ?? '');
     <?= $extraHeadHtml ?? '' ?>
 </head>
 
-<body>
+<body class="<?= e($bodyClass ?? '') ?>">
