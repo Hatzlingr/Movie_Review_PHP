@@ -51,7 +51,7 @@ function posterUrl(?string $path): string
 {
     if (!$path) return 'https://placehold.co/220x330/2f2543/ffffff?text=No+Poster';
     if (str_starts_with($path, 'http')) return $path;
-    return '/public/' . ltrim($path, '/');
+    return '/' . ltrim($path, '/');
 }
 
 function watchlistStatusBtn(string $status): string
@@ -70,7 +70,7 @@ require_once __DIR__ . '/app/views/partials/header.php';
 require_once __DIR__ . '/app/views/partials/navbar.php';
 
 $heroBanner = !empty($heroMovie['banner_path'])
-    ? '/public/' . ltrim($heroMovie['banner_path'], '/')
+    ? '/' . ltrim($heroMovie['banner_path'], '/')
     : 'https://image.tmdb.org/t/p/original/gKkl37BQuKTanygYQG1pyYgLVgf.jpg';
 ?>
 

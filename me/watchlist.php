@@ -60,7 +60,7 @@ require_once __DIR__ . '/../app/views/partials/navbar.php';
     </div>
 
     <?php if (empty($watchlist)): ?>
-        <div class="alert alert-info">Your watchlist is empty. <a href="/public/index.php">Browse movies</a> to add some!</div>
+        <div class="alert alert-info">Your watchlist is empty. <a href="/index.php">Browse movies</a> to add some!</div>
     <?php else: ?>
         <div class="table-responsive">
             <table class="table table-hover align-middle">
@@ -78,8 +78,8 @@ require_once __DIR__ . '/../app/views/partials/navbar.php';
                     <?php foreach ($watchlist as $row): ?>
                         <tr>
                             <td style="width:60px">
-                                <?php if ($row['poster_path'] && file_exists(__DIR__ . '/../public/' . $row['poster_path'])): ?>
-                                    <img src="/public/<?= e($row['poster_path']) ?>"
+                                <?php if ($row['poster_path'] && file_exists(__DIR__ . '/../' . $row['poster_path'])): ?>
+                                    <img src="/<?= e($row['poster_path']) ?>"
                                         alt="<?= e($row['title']) ?>"
                                         style="width:48px;height:72px;object-fit:cover;border-radius:4px">
                                 <?php else: ?>
@@ -90,7 +90,7 @@ require_once __DIR__ . '/../app/views/partials/navbar.php';
                                 <?php endif; ?>
                             </td>
                             <td>
-                                <a href="/public/movie.php?id=<?= (int)$row['movie_id'] ?>" class="fw-semibold text-decoration-none">
+                                <a href="/movie.php?id=<?= (int)$row['movie_id'] ?>" class="fw-semibold text-decoration-none">
                                     <?= e($row['title']) ?>
                                 </a>
                             </td>

@@ -50,8 +50,8 @@ require_once __DIR__ . '/../../app/views/partials/header_admin.php';
                 <?php foreach ($movies as $m): ?>
                     <tr>
                         <td style="width:56px">
-                            <?php if ($m['poster_path'] && file_exists(__DIR__ . '/../../public/' . $m['poster_path'])): ?>
-                                <img src="/public/<?= e($m['poster_path']) ?>" style="width:44px;height:66px;object-fit:cover;border-radius:4px" alt="">
+                            <?php if ($m['poster_path'] && file_exists(__DIR__ . '/../../' . $m['poster_path'])): ?>
+                                <img src="/<?= e($m['poster_path']) ?>" style="width:44px;height:66px;object-fit:cover;border-radius:4px" alt="">
                             <?php else: ?>
                                 <div class="bg-secondary text-white d-flex align-items-center justify-content-center"
                                     style="width:44px;height:66px;border-radius:4px;font-size:1.2rem">

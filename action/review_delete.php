@@ -11,7 +11,7 @@ ensure_session();
 require_login();
 
 $reviewId = (int) ($_GET['review_id'] ?? 0);
-$redirect = $_GET['redirect'] ?? '/public/index.php';
+$redirect = $_GET['redirect'] ?? '/index.php';
 
 if ($reviewId <= 0) {
     flash_set('danger', 'Invalid review.');

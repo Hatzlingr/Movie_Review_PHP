@@ -54,7 +54,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors[] = 'Poster must be under 2 MB.';
         } else {
             $filename  = bin2hex(random_bytes(12)) . '.' . $extMap[$mime];
-            $uploadDir = __DIR__ . '/../../public/uploads/posters/';
+            $uploadDir = __DIR__ . '/../../uploads/posters/';
             if (!is_dir($uploadDir)) mkdir($uploadDir, 0775, true);
             move_uploaded_file($file['tmp_name'], $uploadDir . $filename);
             $posterPath = 'uploads/posters/' . $filename;
@@ -74,7 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors[] = 'Banner must be under 2 MB.';
         } else {
             $bfilename  = bin2hex(random_bytes(12)) . '.' . $extMap[$bmime];
-            $buploadDir = __DIR__ . '/../../public/uploads/banner/';
+            $buploadDir = __DIR__ . '/../../uploads/banner/';
             if (!is_dir($buploadDir)) mkdir($buploadDir, 0775, true);
             move_uploaded_file($bfile['tmp_name'], $buploadDir . $bfilename);
             $bannerPath = 'uploads/banner/' . $bfilename;
