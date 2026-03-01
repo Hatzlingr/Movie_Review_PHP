@@ -99,6 +99,7 @@ DROP TABLE IF EXISTS directors;
 CREATE TABLE directors (
   id BIGINT UNSIGNED PRIMARY KEY AUTO_INCREMENT,
   name VARCHAR(100) NOT NULL,
+  photo_path VARCHAR(255) NULL,
   UNIQUE KEY uq_directors_name (name)
 ) ENGINE=InnoDB;
 
