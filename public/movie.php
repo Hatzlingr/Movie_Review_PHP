@@ -104,6 +104,7 @@ if ($user) {
 }
 
 $pageTitle = e($movie['title']);
+$extraHeadHtml = '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/star-rating.js@4.3.0/dist/star-rating.min.css">';
 require_once __DIR__ . '/../app/views/partials/header.php';
 require_once __DIR__ . '/../app/views/partials/navbar.php';
 ?>
@@ -136,9 +137,10 @@ require_once __DIR__ . '/../app/views/partials/navbar.php';
                     <span><i class="bi bi-clock"></i> <?= e($movie['duration_minutes']) ?> min</span>
                 <?php endif; ?>
                 <?php if ($movie['avg_rating']): ?>
-                    <span class="score-badge fs-6 px-2">
-                        <i class="bi bi-star-fill"></i> <?= e($movie['avg_rating']) ?>/5
+                    <span title="<?= e($movie['avg_rating']) ?>/5" style="color:#f1c40f; font-size:1.1rem; letter-spacing:1px">
+                        <?= renderStars((float)$movie['avg_rating']) ?>
                     </span>
+                    <span class="score-badge fs-6 px-2"><?= e($movie['avg_rating']) ?>/5</span>
                     <span class="text-muted"><?= (int)$movie['total_ratings'] ?> rating<?= $movie['total_ratings'] != 1 ? 's' : '' ?></span>
                 <?php else: ?>
                     <span class="text-muted">No ratings yet</span>
@@ -195,18 +197,18 @@ require_once __DIR__ . '/../app/views/partials/navbar.php';
                                 <h6 class="card-title"><i class="bi bi-star"></i> Your Rating</h6>
                                 <form method="post" action="/action/rating_save.php">
                                     <input type="hidden" name="movie_id" value="<?= $id ?>">
-                                    <input type="hidden" name="redirect" value="/movie.php?id=<?= $id ?>">
-                                    <div class="d-flex align-items-center gap-2">
-                                        <input type="number" name="score" min="1" max="5" step="1"
-                                            class="form-control form-control-sm"
-                                            style="width:80px"
-                                            value="<?= e($myRating !== false ? $myRating : '') ?>"
-                                            required>
-                                        <span class="text-muted small">/ 5</span>
-                                        <button type="submit" class="btn btn-sm btn-warning">
-                                            <?= $myRating !== false ? 'Update' : 'Rate' ?>
-                                        </button>
-                                    </div>
+                                    <input type="hidden" name="redirect" value="/public/movie.php?id=<?= $id ?>">
+                                    <select name="score" id="ratingSelect" class="star-rating-input" required>
+                                        <option value="">-- Pilih --</option>
+                                        <?php for ($s = 1; $s <= 5; $s++): ?>
+                                            <option value="<?= $s ?>" <?= (int)$myRating === $s ? 'selected' : '' ?>>
+                                                <?= $s ?> Star<?= $s > 1 ? 's' : '' ?>
+                                            </option>
+                                        <?php endfor; ?>
+                                    </select>
+                                    <button type="submit" class="btn btn-sm btn-warning mt-2">
+                                        <?= $myRating !== false ? 'Update Rating' : 'Rate' ?>
+                                    </button>
                                 </form>
                             </div>
                         </div>
@@ -320,4 +322,14 @@ require_once __DIR__ . '/../app/views/partials/navbar.php';
         </div>
     <?php endforeach; ?>
 </main>
+<script src="https://cdn.jsdelivr.net/npm/star-rating.js@4.3.0/dist/star-rating.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        new StarRating('#ratingSelect', {
+            maxStars: 5,
+            tooltip: false,
+            labels: ['Terrible', 'Bad', 'Average', 'Good', 'Excellent'],
+        });
+    });
+</script>
 <?php require_once __DIR__ . '/../app/views/partials/footer.php'; ?>
