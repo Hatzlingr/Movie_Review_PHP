@@ -239,4 +239,87 @@ class MovieRepository
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    /** All genres ordered alphabetically — used by search page filter pills. */
+    public function getAllGenres(): array
+    {
+        return $this->pdo
+            ->query("SELECT id, name FROM genres ORDER BY name ASC")
+            ->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Autocomplete suggestions: prefix matches float to the top, then alphabetical.
+     */
+    public function suggestMovies(string $q, int $limit = 8): array
+    {
+        $stmt = $this->pdo->prepare(
+            "SELECT m.id, m.title, m.release_year, m.poster_path,
+                    ROUND(AVG(r.score), 1) AS avg_rating
+             FROM movies m
+             LEFT JOIN ratings r ON r.movie_id = m.id
+             WHERE m.title LIKE :q
+             GROUP BY m.id, m.title, m.release_year, m.poster_path
+             ORDER BY
+                 CASE WHEN m.title LIKE :prefix THEN 0 ELSE 1 END,
+                 m.title ASC
+             LIMIT :lim"
+        );
+        $stmt->bindValue(':q',      "%{$q}%", PDO::PARAM_STR);
+        $stmt->bindValue(':prefix', "{$q}%",  PDO::PARAM_STR);
+        $stmt->bindValue(':lim',    $limit,   PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Paginated search with optional title query AND/OR genre filter.
+     * Returns ['data' => [...], 'total' => int].
+     */
+    public function searchMovies(string $q, string $genre, int $limit, int $offset): array
+    {
+        $conds  = [];
+        $params = [];
+
+        if ($q !== '') {
+            $conds[]      = 'm.title LIKE :q';
+            $params[':q'] = "%{$q}%";
+        }
+
+        $genreJoin = '';
+        if ($genre !== '') {
+            $genreJoin         = 'JOIN movie_genres mg ON mg.movie_id = m.id
+                                  JOIN genres g        ON g.id        = mg.genre_id';
+            $conds[]           = 'g.name = :genre';
+            $params[':genre']  = $genre;
+        }
+
+        $where = $conds ? 'WHERE ' . implode(' AND ', $conds) : '';
+
+        $cntStmt = $this->pdo->prepare(
+            "SELECT COUNT(DISTINCT m.id) FROM movies m {$genreJoin} {$where}"
+        );
+        foreach ($params as $k => $v) $cntStmt->bindValue($k, $v, PDO::PARAM_STR);
+        $cntStmt->execute();
+        $total = (int) $cntStmt->fetchColumn();
+
+        $stmt = $this->pdo->prepare(
+            "SELECT m.id, m.title, m.release_year, m.poster_path, m.duration_minutes,
+                    ROUND(AVG(r.score), 1) AS avg_rating,
+                    COUNT(DISTINCT r.id)    AS total_ratings
+             FROM movies m
+             {$genreJoin}
+             LEFT JOIN ratings r ON r.movie_id = m.id
+             {$where}
+             GROUP BY m.id, m.title, m.release_year, m.poster_path, m.duration_minutes
+             ORDER BY m.release_year DESC, m.id DESC
+             LIMIT :lim OFFSET :off"
+        );
+        foreach ($params as $k => $v) $stmt->bindValue($k, $v, PDO::PARAM_STR);
+        $stmt->bindValue(':lim', $limit,  PDO::PARAM_INT);
+        $stmt->bindValue(':off', $offset, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return ['data' => $stmt->fetchAll(PDO::FETCH_ASSOC), 'total' => $total];
+    }
 }

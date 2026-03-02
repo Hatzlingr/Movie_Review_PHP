@@ -7,12 +7,14 @@
     <div class="container d-flex justify-content-between align-items-center">
         <a href="/index.php" class="mb-0 fw-bold text-white text-decoration-none" style="letter-spacing:1px;">ELITISRIPIW</a>
         <div class="d-flex align-items-center gap-3">
-            <form method="get" action="/index.php" class="mb-0">
+            <form method="get" action="/public/search.php" class="mb-0" id="navSearchForm">
                 <div class="search-wrapper">
                     <i class="fa-solid fa-search"></i>
-                    <input type="text" name="q" class="search-input"
+                    <input type="text" name="q" class="search-input" id="navSearchInput"
                         placeholder="Search movies…"
-                        value="<?= $_q ?>">
+                        value="<?= $_q ?>"
+                        autocomplete="off">
+                    <ul id="navAcList" class="nav-ac-dropdown"></ul>
                 </div>
             </form>
             <?php if ($_current_user): ?>

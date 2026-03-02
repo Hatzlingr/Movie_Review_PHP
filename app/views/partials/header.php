@@ -24,6 +24,7 @@ $_q = e($_GET['q'] ?? '');
     <link rel="stylesheet" href="/public/assets/css/home.css">
     <link rel="stylesheet" href="/public/assets/css/dark-bs.css">
     <link rel="stylesheet" href="/public/assets/css/responsive.css">
+    <link rel="stylesheet" href="/public/assets/css/navbar-autocomplete.css">
     <?= $extraHeadHtml ?? '' ?>
 </head>
 
