@@ -143,11 +143,14 @@ require_once __DIR__ . '/../app/views/partials/navbar.php';
                                         <i class="fa-solid fa-bookmark"></i> Update
                                     </button>
                                 </form>
-                                <a href="/action/watchlist_remove.php?movie_id=<?= $id ?>&redirect=<?= urlencode('/public/movie.php?id=' . $id) ?>"
-                                    class="watchlist-remove-link"
-                                    onclick="return confirm('Remove from watchlist?')">
-                                    <i class="fa-solid fa-trash-can"></i> Remove
-                                </a>
+                                <form method="post" action="/action/watchlist_remove.php"
+                                    onsubmit="return confirm('Remove from watchlist?')">
+                                    <input type="hidden" name="movie_id" value="<?= $id ?>">
+                                    <input type="hidden" name="redirect" value="/public/movie.php?id=<?= $id ?>">
+                                    <button type="submit" class="watchlist-remove-link" style="background:none;border:none;padding:0;cursor:pointer;">
+                                        <i class="fa-solid fa-trash-can"></i> Remove
+                                    </button>
+                                </form>
                             </div>
                         <?php else: ?>
                             <form method="post" action="/action/watchlist_save.php">
@@ -272,11 +275,14 @@ require_once __DIR__ . '/../app/views/partials/navbar.php';
                         <?php endif; ?>
 
                         <?php if ($user && ((int)$user['id'] === (int)$rev['user_id'] || $user['role'] === 'admin')): ?>
-                            <a href="/action/review_delete.php?review_id=<?= (int)$rev['id'] ?>&redirect=<?= urlencode('/public/movie.php?id=' . $id) ?>"
-                                class="delete-btn-movie"
-                                onclick="return confirm('Delete this review?')">
-                                <i class="fa-regular fa-trash-can"></i>
-                            </a>
+                            <form method="post" action="/action/review_delete.php" style="display:inline"
+                                onsubmit="return confirm('Delete this review?')">
+                                <input type="hidden" name="review_id" value="<?= (int)$rev['id'] ?>">
+                                <input type="hidden" name="redirect" value="/public/movie.php?id=<?= $id ?>">
+                                <button type="submit" class="delete-btn-movie" style="background:none;border:none;padding:0;cursor:pointer;">
+                                    <i class="fa-regular fa-trash-can"></i>
+                                </button>
+                            </form>
                         <?php endif; ?>
                     </div>
                 </div>

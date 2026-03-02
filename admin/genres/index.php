@@ -17,6 +17,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $name = trim($_POST['name'] ?? '');
     if ($name === '') {
         $errors[] = 'Genre name is required.';
+    } elseif (mb_strlen($name) > 100) {
+        $errors[] = 'Genre name must be 100 characters or fewer.';
     } else {
         try {
             $pdo->prepare("INSERT INTO genres (name) VALUES (:n)")->execute([':n' => $name]);
@@ -31,8 +33,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
 }
 
 // Delete
-if (isset($_GET['delete'])) {
-    $delId = (int) $_GET['delete'];
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'delete') {
+    $delId = (int) ($_POST['id'] ?? 0);
     $pdo->prepare("DELETE FROM genres WHERE id = :id")->execute([':id' => $delId]);
     flash_set('success', 'Genre deleted.');
     redirect('/admin/genres/index.php');
@@ -81,10 +83,14 @@ require_once __DIR__ . '/../../app/views/partials/header_admin.php';
                     <td><?= e($g['name']) ?></td>
                     <td><span class="badge bg-secondary"><?= (int)$g['movie_count'] ?></span></td>
                     <td class="text-end">
-                        <a href="?delete=<?= (int)$g['id'] ?>" class="btn btn-sm btn-outline-danger"
-                            onclick="return confirm('Delete genre: <?= e(addslashes($g['name'])) ?>?')">
-                            <i class="bi bi-trash"></i>
-                        </a>
+                        <form method="post" class="d-inline">
+                            <input type="hidden" name="action" value="delete">
+                            <input type="hidden" name="id" value="<?= (int)$g['id'] ?>">
+                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                onclick="return confirm('Delete genre: <?= e(addslashes($g['name'])) ?>?')">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
                     </td>
                 </tr>
             <?php endforeach; ?>

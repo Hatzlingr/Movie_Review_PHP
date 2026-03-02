@@ -40,114 +40,155 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($fields['title'] === '') {
         $errors[] = 'Title is required.';
+    } elseif (mb_strlen($fields['title']) > 255) {
+        $errors[] = 'Title must be 255 characters or fewer.';
     }
     if ($fields['release_year'] !== '' && !ctype_digit($fields['release_year'])) {
         $errors[] = 'Release year must be a number.';
+    } elseif ($fields['release_year'] !== '') {
+        $year = (int) $fields['release_year'];
+        if ($year < 1888 || $year > 2099) {
+            $errors[] = 'Release year must be between 1888 and 2099.';
+        }
     }
     if ($fields['duration_minutes'] !== '' && !ctype_digit($fields['duration_minutes'])) {
         $errors[] = 'Duration must be a number.';
+    } elseif ($fields['duration_minutes'] !== '') {
+        $dur = (int) $fields['duration_minutes'];
+        if ($dur < 1 || $dur > 9999) {
+            $errors[] = 'Duration must be between 1 and 9999 minutes.';
+        }
     }
 
     // --- Poster ---
-    $posterPath = $movie['poster_path'];
+    $oldPosterPath = $movie['poster_path'];
+    $posterPath    = $movie['poster_path'];
     if (!empty($_FILES['poster']['name'])) {
-        $file    = $_FILES['poster'];
-        $allowed = ['image/jpeg', 'image/png', 'image/webp'];
-        $finfo   = new finfo(FILEINFO_MIME_TYPE);
-        $mime    = $finfo->file($file['tmp_name']);
-        if (!in_array($mime, $allowed, true)) {
-            $errors[] = 'Poster must be JPG, PNG, or WebP.';
-        } elseif ($file['size'] > 2 * 1024 * 1024) {
-            $errors[] = 'Poster must be under 2 MB.';
+        $file = $_FILES['poster'];
+        if ($file['error'] !== UPLOAD_ERR_OK) {
+            $errors[] = 'Poster upload failed (error code: ' . $file['error'] . ').';
         } else {
-            $ext       = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'][$mime];
-            $filename  = bin2hex(random_bytes(12)) . '.' . $ext;
-            $uploadDir = __DIR__ . '/../../uploads/posters/';
-            if (!is_dir($uploadDir)) mkdir($uploadDir, 0775, true);
-            move_uploaded_file($file['tmp_name'], $uploadDir . $filename);
-            if ($posterPath && file_exists(__DIR__ . '/../../' . $posterPath)) {
-                @unlink(__DIR__ . '/../../' . $posterPath);
+            $allowed = ['image/jpeg', 'image/png', 'image/webp'];
+            $finfo   = new finfo(FILEINFO_MIME_TYPE);
+            $mime    = $finfo->file($file['tmp_name']);
+            if (!in_array($mime, $allowed, true)) {
+                $errors[] = 'Poster must be JPG, PNG, or WebP.';
+            } elseif ($file['size'] > 2 * 1024 * 1024) {
+                $errors[] = 'Poster must be under 2 MB.';
+            } else {
+                $ext       = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'][$mime];
+                $filename  = bin2hex(random_bytes(12)) . '.' . $ext;
+                $uploadDir = upload_path('uploads/posters/');
+                if (!is_dir($uploadDir)) mkdir($uploadDir, 0775, true);
+                if (!move_uploaded_file($file['tmp_name'], rtrim($uploadDir, '/\\') . DIRECTORY_SEPARATOR . $filename)) {
+                    $errors[] = 'Failed to save poster file.';
+                } else {
+                    $posterPath = 'uploads/posters/' . $filename;
+                }
             }
-            $posterPath = 'uploads/posters/' . $filename;
         }
     }
 
     // --- Banner ---
-    $bannerPath = $movie['banner_path'];
+    $oldBannerPath = $movie['banner_path'];
+    $bannerPath    = $movie['banner_path'];
     if (!empty($_FILES['banner']['name'])) {
-        $bfile   = $_FILES['banner'];
-        $allowed = ['image/jpeg', 'image/png', 'image/webp'];
-        $finfo   = new finfo(FILEINFO_MIME_TYPE);
-        $bmime   = $finfo->file($bfile['tmp_name']);
-        if (!in_array($bmime, $allowed, true)) {
-            $errors[] = 'Banner must be JPG, PNG, or WebP.';
-        } elseif ($bfile['size'] > 2 * 1024 * 1024) {
-            $errors[] = 'Banner must be under 2 MB.';
+        $bfile = $_FILES['banner'];
+        if ($bfile['error'] !== UPLOAD_ERR_OK) {
+            $errors[] = 'Banner upload failed (error code: ' . $bfile['error'] . ').';
         } else {
-            $bext       = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'][$bmime];
-            $bfilename  = bin2hex(random_bytes(12)) . '.' . $bext;
-            $buploadDir = __DIR__ . '/../../uploads/banner/';
-            if (!is_dir($buploadDir)) mkdir($buploadDir, 0775, true);
-            move_uploaded_file($bfile['tmp_name'], $buploadDir . $bfilename);
-            if ($bannerPath && file_exists(__DIR__ . '/../../' . $bannerPath)) {
-                @unlink(__DIR__ . '/../../' . $bannerPath);
+            $allowed = ['image/jpeg', 'image/png', 'image/webp'];
+            $finfo   = new finfo(FILEINFO_MIME_TYPE);
+            $bmime   = $finfo->file($bfile['tmp_name']);
+            if (!in_array($bmime, $allowed, true)) {
+                $errors[] = 'Banner must be JPG, PNG, or WebP.';
+            } elseif ($bfile['size'] > 2 * 1024 * 1024) {
+                $errors[] = 'Banner must be under 2 MB.';
+            } else {
+                $bext       = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'][$bmime];
+                $bfilename  = bin2hex(random_bytes(12)) . '.' . $bext;
+                $buploadDir = upload_path('uploads/banner/');
+                if (!is_dir($buploadDir)) mkdir($buploadDir, 0775, true);
+                if (!move_uploaded_file($bfile['tmp_name'], rtrim($buploadDir, '/\\') . DIRECTORY_SEPARATOR . $bfilename)) {
+                    $errors[] = 'Failed to save banner file.';
+                } else {
+                    $bannerPath = 'uploads/banner/' . $bfilename;
+                }
             }
-            $bannerPath = 'uploads/banner/' . $bfilename;
         }
     }
 
     if (empty($errors)) {
-        // Update movie row
-        $upd = $pdo->prepare(
-            "UPDATE movies SET title=:t, description=:d, release_year=:y, duration_minutes=:dur, poster_path=:p, banner_path=:b
-             WHERE id=:id"
-        );
-        $upd->execute([
-            ':t'   => $fields['title'],
-            ':d'   => $fields['description'] ?: null,
-            ':y'   => $fields['release_year'] !== '' ? (int)$fields['release_year'] : null,
-            ':dur' => $fields['duration_minutes'] !== '' ? (int)$fields['duration_minutes'] : null,
-            ':p'   => $posterPath,
-            ':b'   => $bannerPath,
-            ':id'  => $id,
-        ]);
+        try {
+            // Update movie row
+            $upd = $pdo->prepare(
+                "UPDATE movies SET title=:t, description=:d, release_year=:y, duration_minutes=:dur, poster_path=:p, banner_path=:b
+                 WHERE id=:id"
+            );
+            $upd->execute([
+                ':t'   => $fields['title'],
+                ':d'   => $fields['description'] ?: null,
+                ':y'   => $fields['release_year'] !== '' ? (int)$fields['release_year'] : null,
+                ':dur' => $fields['duration_minutes'] !== '' ? (int)$fields['duration_minutes'] : null,
+                ':p'   => $posterPath,
+                ':b'   => $bannerPath,
+                ':id'  => $id,
+            ]);
 
-        // Update genres
-        $genreIds = array_map('intval', $_POST['genre_ids'] ?? []);
-        $pdo->prepare("DELETE FROM movie_genres WHERE movie_id = :m")->execute([':m' => $id]);
-        if (!empty($genreIds)) {
-            $ins = $pdo->prepare("INSERT IGNORE INTO movie_genres (movie_id, genre_id) VALUES (:m, :g)");
-            foreach ($genreIds as $gid) {
-                if ($gid <= 0) continue;
-                $ins->execute([':m' => $id, ':g' => $gid]);
+            // Update genres
+            $genreIds = array_map('intval', $_POST['genre_ids'] ?? []);
+            $pdo->prepare("DELETE FROM movie_genres WHERE movie_id = :m")->execute([':m' => $id]);
+            if (!empty($genreIds)) {
+                $ins = $pdo->prepare("INSERT IGNORE INTO movie_genres (movie_id, genre_id) VALUES (:m, :g)");
+                foreach ($genreIds as $gid) {
+                    if ($gid <= 0) continue;
+                    $ins->execute([':m' => $id, ':g' => $gid]);
+                }
             }
-        }
 
-        // Update directors
-        $directorIds = array_map('intval', $_POST['director_ids'] ?? []);
-        $pdo->prepare("DELETE FROM movie_directors WHERE movie_id = :m")->execute([':m' => $id]);
-        if (!empty($directorIds)) {
-            $ins = $pdo->prepare("INSERT IGNORE INTO movie_directors (movie_id, director_id) VALUES (:m, :d)");
-            foreach ($directorIds as $did) {
-                if ($did > 0) $ins->execute([':m' => $id, ':d' => $did]);
+            // Update directors
+            $directorIds = array_map('intval', $_POST['director_ids'] ?? []);
+            $pdo->prepare("DELETE FROM movie_directors WHERE movie_id = :m")->execute([':m' => $id]);
+            if (!empty($directorIds)) {
+                $ins = $pdo->prepare("INSERT IGNORE INTO movie_directors (movie_id, director_id) VALUES (:m, :d)");
+                foreach ($directorIds as $did) {
+                    if ($did > 0) $ins->execute([':m' => $id, ':d' => $did]);
+                }
             }
-        }
 
-        // Update actors
-        $actorIds  = array_map('intval', $_POST['actor_ids'] ?? []);
-        $roleNames = $_POST['role_names'] ?? [];
-        $pdo->prepare("DELETE FROM movie_actors WHERE movie_id = :m")->execute([':m' => $id]);
-        if (!empty($actorIds)) {
-            $ins = $pdo->prepare("INSERT IGNORE INTO movie_actors (movie_id, actor_id, role_name) VALUES (:m, :a, :r)");
-            foreach ($actorIds as $i => $aid) {
-                if ($aid <= 0) continue;
-                $role = trim($roleNames[$i] ?? '');
-                $ins->execute([':m' => $id, ':a' => $aid, ':r' => $role ?: null]);
+            // Update actors
+            $actorIds  = array_map('intval', $_POST['actor_ids'] ?? []);
+            $roleNames = $_POST['role_names'] ?? [];
+            $pdo->prepare("DELETE FROM movie_actors WHERE movie_id = :m")->execute([':m' => $id]);
+            if (!empty($actorIds)) {
+                $ins = $pdo->prepare("INSERT IGNORE INTO movie_actors (movie_id, actor_id, role_name) VALUES (:m, :a, :r)");
+                foreach ($actorIds as $i => $aid) {
+                    if ($aid <= 0) continue;
+                    $role = trim($roleNames[$i] ?? '');
+                    $ins->execute([':m' => $id, ':a' => $aid, ':r' => $role ?: null]);
+                }
             }
-        }
 
-        flash_set('success', 'Movie updated.');
-        redirect('/admin/movies/index.php?id=' . $id);
+            // DB succeeded — now safe to remove replaced images.
+            if ($oldPosterPath && $oldPosterPath !== $posterPath) {
+                $oldFile = upload_path($oldPosterPath);
+                if (file_exists($oldFile) && !unlink($oldFile)) {
+                    error_log('Failed to delete old poster: ' . $oldFile);
+                }
+            }
+            if ($oldBannerPath && $oldBannerPath !== $bannerPath) {
+                $oldFile = upload_path($oldBannerPath);
+                if (file_exists($oldFile) && !unlink($oldFile)) {
+                    error_log('Failed to delete old banner: ' . $oldFile);
+                }
+            }
+
+            flash_set('success', 'Movie updated.');
+            redirect('/admin/movies/index.php?id=' . $id);
+        } catch (PDOException $e) {
+            error_log('Update movie error: ' . $e->getMessage());
+            $errors[] = 'Database error — changes were not saved. Please try again.';
+        }
     }
 }
 
@@ -214,9 +255,9 @@ require_once __DIR__ . '/../../app/views/partials/header_admin.php';
         <div class="card-body row g-4">
             <div class="col-md-6">
                 <label class="form-label fw-semibold">Poster <small class="text-muted">(JPG/PNG/WebP, max 2 MB)</small></label>
-                <?php if ($movie['poster_path'] && file_exists(__DIR__ . '/../../' . $movie['poster_path'])): ?>
+                <?php if ($movie['poster_path']): ?>
                     <div class="mb-2">
-                        <img src="/<?= e($movie['poster_path']) ?>" style="height:90px;border-radius:4px" alt="current poster">
+                        <img src="<?= e(imageUrl($movie['poster_path'], 'poster')) ?>" style="height:90px;border-radius:4px" alt="current poster">
                         <small class="text-muted ms-2">Current poster</small>
                     </div>
                 <?php endif; ?>
@@ -224,9 +265,9 @@ require_once __DIR__ . '/../../app/views/partials/header_admin.php';
             </div>
             <div class="col-md-6">
                 <label class="form-label fw-semibold">Banner <small class="text-muted">(JPG/PNG/WebP, max 2 MB)</small></label>
-                <?php if ($movie['banner_path'] && file_exists(__DIR__ . '/../../' . $movie['banner_path'])): ?>
+                <?php if ($movie['banner_path']): ?>
                     <div class="mb-2">
-                        <img src="/<?= e($movie['banner_path']) ?>" style="height:90px;border-radius:4px" alt="current banner">
+                        <img src="<?= e(imageUrl($movie['banner_path'], 'banner')) ?>" style="height:90px;border-radius:4px" alt="current banner">
                         <small class="text-muted ms-2">Current banner</small>
                     </div>
                 <?php endif; ?>

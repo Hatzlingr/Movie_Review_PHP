@@ -14,3 +14,16 @@
     min-height: 100vh;
 }
 
+/* Pagination */
+.pagination {
+    margin-top: .5rem;
+}
+.pagination .page-link {
+    color: var(--bs-body-color);
+    border-color: var(--bs-border-color);
+}
+.pagination .page-item.active .page-link {
+    background-color: var(--bs-primary);
+    border-color: var(--bs-primary);
+    color: #fff;
+}

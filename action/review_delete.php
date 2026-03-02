@@ -10,8 +10,12 @@ require_once __DIR__ . '/../app/config/db.php';
 ensure_session();
 require_login();
 
-$reviewId = (int) ($_GET['review_id'] ?? 0);
-$redirect = $_GET['redirect'] ?? '/index.php';
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    redirect('/index.php');
+}
+
+$reviewId = (int) ($_POST['review_id'] ?? 0);
+$redirect = $_POST['redirect'] ?? '/index.php';
 
 if ($reviewId <= 0) {
     flash_set('danger', 'Invalid review.');

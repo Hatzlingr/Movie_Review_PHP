@@ -1,5 +1,14 @@
 <?php
-// app/helpers/functions.php
+
+/**
+ * app/helpers/functions.php
+ *
+ * Global helper functions used across the entire application.
+ *
+ * @author  Movie Review App
+ * @version 1.0
+ */
+
 declare(strict_types=1);
 
 /**
@@ -22,18 +31,35 @@ function e(mixed $value): string
 
 /**
  * PRG redirect helper.
+ *
+ * Only allows local paths (starting with '/') to prevent open-redirect attacks.
+ * Any absolute URL is silently replaced with the site root.
+ *
+ * @param string $url Target path, e.g. '/index.php' or '/public/movie.php?id=1'.
  */
 function redirect(string $url): never
 {
+    // Block external URLs — only relative paths are allowed.
+    if (!str_starts_with($url, '/') || str_starts_with($url, '//')) {
+        $url = '/index.php';
+    }
     header('Location: ' . $url);
     exit;
 }
 
 /**
  * Render 5 stars (full / half / empty) from a numeric score.
+ *
+ * @param  float  $score  Rating value; automatically clamped to [0, 5].
+ * @return string         HTML string of <i> star icons.
+ *
+ * @example renderStars(3.5) // Returns 3 full + 1 half + 1 empty star
  */
 function renderStars(float $score): string
 {
+    // Clamp to valid range to prevent broken UI or negative loop counts.
+    $score = max(0.0, min(5.0, $score));
+
     $full  = (int) floor($score);
     $half  = ($score - $full) >= 0.5 ? 1 : 0;
     $empty = 5 - $full - $half;
@@ -46,7 +72,14 @@ function renderStars(float $score): string
 
 /**
  * Resolve any image path to a public URL.
- * $type: 'poster' | 'banner' | 'actor' | 'director' | 'avatar'
+ *
+ * Absolute HTTP(S) URLs are returned as-is. DB-stored relative paths
+ * (e.g. 'uploads/posters/xxx.jpg') are prefixed with '/public/'.
+ * Path-traversal sequences (../ and .\) are stripped for defense-in-depth.
+ *
+ * @param  string|null $path  Raw path from DB or null.
+ * @param  string      $type  Placeholder type: 'poster'|'banner'|'actor'|'director'|'avatar'.
+ * @return string             Absolute URL safe for use in an <img src> attribute.
  */
 function imageUrl(?string $path, string $type = 'poster'): string
 {
@@ -61,7 +94,44 @@ function imageUrl(?string $path, string $type = 'poster'): string
     ];
 
     if (!$path) return $placeholders[$type] ?? $placeholders['poster'];
-    return '/public/' . ltrim($path, '/');
+
+    // Strip path-traversal sequences before building the URL.
+    $safe = str_replace(['../', '..\\', '..'], '', $path);
+    $safe = ltrim($safe, '/');
+
+    return '/public/' . $safe;
+}
+
+/**
+ * Resolve a DB-stored upload path to an absolute filesystem path.
+ *
+ * DB stores:  'uploads/posters/xxx.jpg'
+ * Returns:    '/absolute/path/to/public/uploads/posters/xxx.jpg'
+ *
+ * Throws a RuntimeException if the resolved path escapes the public/ folder
+ * to prevent path-traversal attacks when the result is used with file functions.
+ *
+ * @param  string|null $path  Relative path as stored in the database.
+ * @return string             Absolute filesystem path inside public/.
+ * @throws RuntimeException   If the path resolves outside the allowed directory.
+ */
+function upload_path(?string $path): string
+{
+    $base     = realpath(__DIR__ . '/../../public');
+    $resolved = realpath($base . '/' . ltrim($path ?? '', '/'));
+
+    // realpath() returns false for non-existent files; fall back to a safe join.
+    if ($resolved === false) {
+        // File may not exist yet (new upload). Strip traversal manually.
+        $safe = str_replace(['../', '..\\', '..'], '', $path ?? '');
+        return $base . '/' . ltrim($safe, '/');
+    }
+
+    if (!str_starts_with($resolved, $base)) {
+        throw new RuntimeException('Invalid upload path: path traversal detected.');
+    }
+
+    return $resolved;
 }
 /**
  * Format duration in minutes to "Xh Ym" string.
