@@ -249,30 +249,6 @@ class MovieRepository
     }
 
     /**
-     * Autocomplete suggestions: prefix matches float to the top, then alphabetical.
-     */
-    public function suggestMovies(string $q, int $limit = 8): array
-    {
-        $stmt = $this->pdo->prepare(
-            "SELECT m.id, m.title, m.release_year, m.poster_path,
-                    ROUND(AVG(r.score), 1) AS avg_rating
-             FROM movies m
-             LEFT JOIN ratings r ON r.movie_id = m.id
-             WHERE m.title LIKE :q
-             GROUP BY m.id, m.title, m.release_year, m.poster_path
-             ORDER BY
-                 CASE WHEN m.title LIKE :prefix THEN 0 ELSE 1 END,
-                 m.title ASC
-             LIMIT :lim"
-        );
-        $stmt->bindValue(':q',      "%{$q}%", PDO::PARAM_STR);
-        $stmt->bindValue(':prefix', "{$q}%",  PDO::PARAM_STR);
-        $stmt->bindValue(':lim',    $limit,   PDO::PARAM_INT);
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
-
-    /**
      * Paginated search with optional title query AND/OR genre filter.
      * Returns ['data' => [...], 'total' => int].
      */
@@ -304,14 +280,14 @@ class MovieRepository
         $total = (int) $cntStmt->fetchColumn();
 
         $stmt = $this->pdo->prepare(
-            "SELECT m.id, m.title, m.release_year, m.poster_path, m.duration_minutes,
+            "SELECT m.id, m.title, m.release_year, m.poster_path,
                     ROUND(AVG(r.score), 1) AS avg_rating,
                     COUNT(DISTINCT r.id)    AS total_ratings
              FROM movies m
              {$genreJoin}
              LEFT JOIN ratings r ON r.movie_id = m.id
              {$where}
-             GROUP BY m.id, m.title, m.release_year, m.poster_path, m.duration_minutes
+             GROUP BY m.id, m.title, m.release_year, m.poster_path
              ORDER BY m.release_year DESC, m.id DESC
              LIMIT :lim OFFSET :off"
         );

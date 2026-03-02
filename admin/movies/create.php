@@ -21,6 +21,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($fields['title'] === '') {
         $errors[] = 'Title is required.';
+    } elseif (mb_strlen($fields['title']) > 255) {
+        $errors[] = 'Title must be 255 characters or fewer.';
     }
     if ($fields['description'] === '') {
         $errors[] = 'Description is required.';
@@ -29,11 +31,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Release year is required.';
     } elseif (!ctype_digit($fields['release_year'])) {
         $errors[] = 'Release year must be a number.';
+    } else {
+        $year = (int) $fields['release_year'];
+        if ($year < 1888 || $year > 2099) {
+            $errors[] = 'Release year must be between 1888 and 2099.';
+        }
     }
     if ($fields['duration_minutes'] === '') {
         $errors[] = 'Duration is required.';
     } elseif (!ctype_digit($fields['duration_minutes'])) {
         $errors[] = 'Duration must be a number.';
+    } else {
+        $dur = (int) $fields['duration_minutes'];
+        if ($dur < 1 || $dur > 9999) {
+            $errors[] = 'Duration must be between 1 and 9999 minutes.';
+        }
     }
 
     $finfo   = new finfo(FILEINFO_MIME_TYPE);
@@ -47,17 +59,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Poster is required.';
     } else {
         $file = $_FILES['poster'];
-        $mime = $finfo->file($file['tmp_name']);
-        if (!in_array($mime, $allowed, true)) {
-            $errors[] = 'Poster must be JPG, PNG, or WebP.';
-        } elseif ($file['size'] > $maxBytes) {
-            $errors[] = 'Poster must be under 2 MB.';
+        if ($file['error'] !== UPLOAD_ERR_OK) {
+            $errors[] = 'Poster upload failed (error code: ' . $file['error'] . ').';
         } else {
-            $filename  = bin2hex(random_bytes(12)) . '.' . $extMap[$mime];
-            $uploadDir = __DIR__ . '/../../uploads/posters/';
-            if (!is_dir($uploadDir)) mkdir($uploadDir, 0775, true);
-            move_uploaded_file($file['tmp_name'], $uploadDir . $filename);
-            $posterPath = 'uploads/posters/' . $filename;
+            $mime = $finfo->file($file['tmp_name']);
+            if (!in_array($mime, $allowed, true)) {
+                $errors[] = 'Poster must be JPG, PNG, or WebP.';
+            } elseif ($file['size'] > $maxBytes) {
+                $errors[] = 'Poster must be under 2 MB.';
+            } else {
+                $filename  = bin2hex(random_bytes(12)) . '.' . $extMap[$mime];
+                $uploadDir = upload_path('uploads/posters/');
+                if (!is_dir($uploadDir)) mkdir($uploadDir, 0775, true);
+                if (!move_uploaded_file($file['tmp_name'], rtrim($uploadDir, '/\\') . DIRECTORY_SEPARATOR . $filename)) {
+                    $errors[] = 'Failed to save poster file.';
+                } else {
+                    $posterPath = 'uploads/posters/' . $filename;
+                }
+            }
         }
     }
 
@@ -67,36 +86,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Banner is required.';
     } else {
         $bfile = $_FILES['banner'];
-        $bmime = $finfo->file($bfile['tmp_name']);
-        if (!in_array($bmime, $allowed, true)) {
-            $errors[] = 'Banner must be JPG, PNG, or WebP.';
-        } elseif ($bfile['size'] > $maxBytes) {
-            $errors[] = 'Banner must be under 2 MB.';
+        if ($bfile['error'] !== UPLOAD_ERR_OK) {
+            $errors[] = 'Banner upload failed (error code: ' . $bfile['error'] . ').';
         } else {
-            $bfilename  = bin2hex(random_bytes(12)) . '.' . $extMap[$bmime];
-            $buploadDir = __DIR__ . '/../../uploads/banner/';
-            if (!is_dir($buploadDir)) mkdir($buploadDir, 0775, true);
-            move_uploaded_file($bfile['tmp_name'], $buploadDir . $bfilename);
-            $bannerPath = 'uploads/banner/' . $bfilename;
+            $bmime = $finfo->file($bfile['tmp_name']);
+            if (!in_array($bmime, $allowed, true)) {
+                $errors[] = 'Banner must be JPG, PNG, or WebP.';
+            } elseif ($bfile['size'] > $maxBytes) {
+                $errors[] = 'Banner must be under 2 MB.';
+            } else {
+                $bfilename  = bin2hex(random_bytes(12)) . '.' . $extMap[$bmime];
+                $buploadDir = upload_path('uploads/banner/');
+                if (!is_dir($buploadDir)) mkdir($buploadDir, 0775, true);
+                if (!move_uploaded_file($bfile['tmp_name'], rtrim($buploadDir, '/\\') . DIRECTORY_SEPARATOR . $bfilename)) {
+                    $errors[] = 'Failed to save banner file.';
+                } else {
+                    $bannerPath = 'uploads/banner/' . $bfilename;
+                }
+            }
         }
     }
 
     if (empty($errors)) {
-        $stmt = $pdo->prepare(
-            "INSERT INTO movies (title, description, release_year, duration_minutes, poster_path, banner_path)
-             VALUES (:t, :d, :y, :dur, :p, :b)"
-        );
-        $stmt->execute([
-            ':t'   => $fields['title'],
-            ':d'   => $fields['description'],
-            ':y'   => (int)$fields['release_year'],
-            ':dur' => (int)$fields['duration_minutes'],
-            ':p'   => $posterPath,
-            ':b'   => $bannerPath,
-        ]);
-        $newId = (int) $pdo->lastInsertId();
-        flash_set('success', 'Movie created. Now assign genres, actors, and directors.');
-        redirect('/admin/movies/edit.php?id=' . $newId);
+        try {
+            $stmt = $pdo->prepare(
+                "INSERT INTO movies (title, description, release_year, duration_minutes, poster_path, banner_path)
+                 VALUES (:t, :d, :y, :dur, :p, :b)"
+            );
+            $stmt->execute([
+                ':t'   => $fields['title'],
+                ':d'   => $fields['description'],
+                ':y'   => (int)$fields['release_year'],
+                ':dur' => (int)$fields['duration_minutes'],
+                ':p'   => $posterPath,
+                ':b'   => $bannerPath,
+            ]);
+            $newId = (int) $pdo->lastInsertId();
+            flash_set('success', 'Movie created. Now assign genres, actors, and directors.');
+            redirect('/admin/movies/edit.php?id=' . $newId);
+        } catch (PDOException $e) {
+            error_log('Create movie error: ' . $e->getMessage());
+            $errors[] = 'Database error — movie was not saved. Please try again.';
+        }
     }
 }
 

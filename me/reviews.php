@@ -107,11 +107,14 @@ require_once __DIR__ . '/../app/views/partials/navbar.php';
                         <button type="submit" class="btn btn-sm btn-success">
                             <i class="bi bi-check-lg"></i> Save
                         </button>
-                        <a href="/action/review_delete.php?review_id=<?= (int)$rev['id'] ?>&redirect=<?= urlencode('/me/reviews.php') ?>"
-                            class="btn btn-sm btn-outline-danger"
-                            onclick="return confirm('Delete this review?')">
-                            <i class="bi bi-trash"></i> Delete
-                        </a>
+                        <form method="post" action="/action/review_delete.php" style="display:inline"
+                            onsubmit="return confirm('Delete this review?')">
+                            <input type="hidden" name="review_id" value="<?= (int)$rev['id'] ?>">
+                            <input type="hidden" name="redirect" value="/me/reviews.php">
+                            <button type="submit" class="btn btn-sm btn-outline-danger">
+                                <i class="bi bi-trash"></i> Delete
+                            </button>
+                        </form>
                         <a href="/movie.php?id=<?= (int)$rev['movie_id'] ?>"
                             class="btn btn-sm btn-outline-secondary ms-auto">
                             <i class="bi bi-film"></i> View Movie

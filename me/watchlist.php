@@ -110,11 +110,14 @@ require_once __DIR__ . '/../app/views/partials/navbar.php';
                             </td>
                             <td class="text-muted small"><?= e(substr($row['created_at'], 0, 10)) ?></td>
                             <td class="text-end">
-                                <a href="/action/watchlist_remove.php?movie_id=<?= (int)$row['movie_id'] ?>&redirect=<?= urlencode('/me/watchlist.php') ?>"
-                                    class="btn btn-sm btn-outline-danger"
-                                    onclick="return confirm('Remove from watchlist?')">
-                                    <i class="bi bi-trash"></i> Remove
-                                </a>
+                                <form method="post" action="/action/watchlist_remove.php"
+                                    onsubmit="return confirm('Remove from watchlist?')">
+                                    <input type="hidden" name="movie_id" value="<?= (int)$row['movie_id'] ?>">
+                                    <input type="hidden" name="redirect" value="/me/watchlist.php">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                                        <i class="bi bi-trash"></i> Remove
+                                    </button>
+                                </form>
                             </td>
                         </tr>
                     <?php endforeach; ?>

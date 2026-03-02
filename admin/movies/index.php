@@ -5,26 +5,36 @@ declare(strict_types=1);
 require_once __DIR__ . '/../../app/helpers/functions.php';
 require_once __DIR__ . '/../../app/helpers/flash.php';
 require_once __DIR__ . '/../../app/helpers/auth.php';
+require_once __DIR__ . '/../../app/helpers/pagination.php';
 require_once __DIR__ . '/../../app/config/db.php';
 
 ensure_session();
 require_admin();
 
-$movies = $pdo->query(
+$perPage = 20;
+$total   = (int)$pdo->query("SELECT COUNT(*) FROM movies")->fetchColumn();
+[$page, $pages, $offset] = calc_pagination($total, $perPage, (int)($_GET['page'] ?? 1));
+
+$stmt = $pdo->prepare(
     "SELECT m.id, m.title, m.release_year, m.duration_minutes, m.poster_path, m.created_at,
             ROUND(AVG(r.score),1) AS avg_rating, COUNT(r.id) AS total_ratings
      FROM movies m
      LEFT JOIN ratings r ON r.movie_id = m.id
      GROUP BY m.id
-     ORDER BY m.created_at DESC"
-)->fetchAll();
+     ORDER BY m.created_at DESC
+     LIMIT :limit OFFSET :offset"
+);
+$stmt->bindValue(':limit',  $perPage, PDO::PARAM_INT);
+$stmt->bindValue(':offset', $offset,  PDO::PARAM_INT);
+$stmt->execute();
+$movies = $stmt->fetchAll();
 
 $pageTitle = 'Manage Movies';
 require_once __DIR__ . '/../../app/views/partials/header_admin.php';
 ?>
 
 <div class="d-flex justify-content-between align-items-center mb-4">
-    <h4 class="fw-bold mb-0"><i class="bi bi-camera-video"></i> Movies</h4>
+    <h4 class="fw-bold mb-0"><i class="bi bi-camera-video"></i> Movies <span class="badge bg-secondary fs-6 ms-2"><?= $total ?></span></h4>
     <a href="/admin/movies/create.php" class="btn btn-primary btn-sm">
         <i class="bi bi-plus-lg"></i> Add Movie
     </a>
@@ -50,14 +60,7 @@ require_once __DIR__ . '/../../app/views/partials/header_admin.php';
                 <?php foreach ($movies as $m): ?>
                     <tr>
                         <td style="width:56px">
-                            <?php if ($m['poster_path'] && file_exists(__DIR__ . '/../../' . $m['poster_path'])): ?>
-                                <img src="/<?= e($m['poster_path']) ?>" style="width:44px;height:66px;object-fit:cover;border-radius:4px" alt="">
-                            <?php else: ?>
-                                <div class="bg-secondary text-white d-flex align-items-center justify-content-center"
-                                    style="width:44px;height:66px;border-radius:4px;font-size:1.2rem">
-                                    <i class="bi bi-film"></i>
-                                </div>
-                            <?php endif; ?>
+                            <img src="<?= e(imageUrl($m['poster_path'], 'poster')) ?>" style="width:44px;height:66px;object-fit:cover;border-radius:4px" alt="">
                         </td>
                         <td class="fw-semibold"><?= e($m['title']) ?></td>
                         <td class="text-muted"><?= e($m['release_year'] ?? '—') ?></td>
@@ -72,12 +75,15 @@ require_once __DIR__ . '/../../app/views/partials/header_admin.php';
                         </td>
                         <td class="text-muted small"><?= e(substr($m['created_at'], 0, 10)) ?></td>
                         <td class="text-end">
-                            <div class="btn-group btn-group-sm">
-                                <a href="/admin/movies/edit.php?id=<?= (int)$m['id'] ?>" class="btn btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
-                                <a href="/admin/movies/delete.php?id=<?= (int)$m['id'] ?>" class="btn btn-outline-danger" title="Delete"
-                                    onclick="return confirm('Delete <?= e(addslashes($m['title'])) ?>?')">
-                                    <i class="bi bi-trash"></i>
-                                </a>
+                            <div class="d-flex gap-1 justify-content-end">
+                                <a href="/admin/movies/edit.php?id=<?= (int)$m['id'] ?>" class="btn btn-sm btn-outline-primary" title="Edit"><i class="bi bi-pencil"></i></a>
+                                <form method="post" action="/admin/movies/delete.php" class="d-inline">
+                                    <input type="hidden" name="id" value="<?= (int)$m['id'] ?>">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="Delete"
+                                        onclick="return confirm('Delete <?= e(addslashes($m['title'])) ?>?')">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
                             </div>
                         </td>
                     </tr>
@@ -86,5 +92,7 @@ require_once __DIR__ . '/../../app/views/partials/header_admin.php';
         </table>
     </div>
 <?php endif; ?>
+
+<?php render_pagination($page, $pages, '/admin/movies/index.php?'); ?>
 
 <?php require_once __DIR__ . '/../../app/views/partials/footer_admin.php'; ?>

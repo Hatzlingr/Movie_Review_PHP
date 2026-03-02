@@ -5,6 +5,7 @@ declare(strict_types=1);
 require_once __DIR__ . '/../../app/helpers/functions.php';
 require_once __DIR__ . '/../../app/helpers/flash.php';
 require_once __DIR__ . '/../../app/helpers/auth.php';
+require_once __DIR__ . '/../../app/helpers/pagination.php';
 require_once __DIR__ . '/../../app/config/db.php';
 
 ensure_session();
@@ -17,6 +18,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $name = trim($_POST['name'] ?? '');
     if ($name === '') {
         $errors[] = 'Actor name is required.';
+    } elseif (mb_strlen($name) > 100) {
+        $errors[] = 'Actor name must be 100 characters or fewer.';
     } else {
         $photoPath = null;
         if (!empty($_FILES['photo']['name'])) {
@@ -25,16 +28,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
             $mime    = $finfo->file($file['tmp_name']);
             $allowed = ['image/jpeg', 'image/png', 'image/webp'];
             $extMap  = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'];
-            if (!in_array($mime, $allowed, true)) {
+            if ($file['error'] !== UPLOAD_ERR_OK) {
+                $errors[] = 'Photo upload failed (error code: ' . $file['error'] . ').';
+            } elseif (!in_array($mime, $allowed, true)) {
                 $errors[] = 'Photo must be JPG, PNG, or WebP.';
             } elseif ($file['size'] > 2 * 1024 * 1024) {
                 $errors[] = 'Photo must be under 2 MB.';
             } else {
                 $filename  = bin2hex(random_bytes(12)) . '.' . $extMap[$mime];
-                $uploadDir = __DIR__ . '/../../uploads/actors/';
+                $uploadDir = upload_path('uploads/actors/');
                 if (!is_dir($uploadDir)) mkdir($uploadDir, 0775, true);
-                move_uploaded_file($file['tmp_name'], $uploadDir . $filename);
-                $photoPath = 'uploads/actors/' . $filename;
+                if (!move_uploaded_file($file['tmp_name'], rtrim($uploadDir, '/\\') . DIRECTORY_SEPARATOR . $filename)) {
+                    $errors[] = 'Failed to save photo file.';
+                } else {
+                    $photoPath = 'uploads/actors/' . $filename;
+                }
             }
         }
         if (empty($errors)) {
@@ -52,31 +60,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     }
 }
 
-// Delete
-if (isset($_GET['delete'])) {
-    $delId    = (int) $_GET['delete'];
-    $row      = $pdo->prepare("SELECT photo_path FROM actors WHERE id = :id");
-    $row->execute([':id' => $delId]);
-    $oldPhoto = $row->fetchColumn();
-    if ($oldPhoto && file_exists(__DIR__ . '/../../' . $oldPhoto)) {
-        @unlink(__DIR__ . '/../../' . $oldPhoto);
-    }
-    $pdo->prepare("DELETE FROM actors WHERE id = :id")->execute([':id' => $delId]);
-    flash_set('success', 'Actor deleted.');
-    redirect('/admin/actors/index.php');
-}
+$perPage     = 20;
+$totalActors = (int)$pdo->query("SELECT COUNT(*) FROM actors")->fetchColumn();
+[$page, $pages, $offset] = calc_pagination($totalActors, $perPage, (int)($_GET['page'] ?? 1));
 
-$actors = $pdo->query(
+$stmt = $pdo->prepare(
     "SELECT a.id, a.name, a.photo_path, COUNT(ma.movie_id) AS movie_count
      FROM actors a LEFT JOIN movie_actors ma ON ma.actor_id = a.id
-     GROUP BY a.id ORDER BY a.name"
-)->fetchAll();
+     GROUP BY a.id ORDER BY a.name
+     LIMIT :limit OFFSET :offset"
+);
+$stmt->bindValue(':limit',  $perPage, PDO::PARAM_INT);
+$stmt->bindValue(':offset', $offset,  PDO::PARAM_INT);
+$stmt->execute();
+$actors = $stmt->fetchAll();
 
 $pageTitle = 'Manage Actors';
 require_once __DIR__ . '/../../app/views/partials/header_admin.php';
 ?>
 
-<h4 class="fw-bold mb-4"><i class="bi bi-person-video3"></i> Actors</h4>
+<h4 class="fw-bold mb-4"><i class="bi bi-person-video3"></i> Actors <span class="badge bg-secondary fs-6 ms-2"><?= $totalActors ?></span></h4>
 
 <div class="card shadow-sm border-0 mb-4">
     <div class="card-body">
@@ -117,24 +120,30 @@ require_once __DIR__ . '/../../app/views/partials/header_admin.php';
             <?php foreach ($actors as $a): ?>
                 <tr>
                     <td>
-                        <?php if (!empty($a['photo_path']) && file_exists(__DIR__ . '/../../' . $a['photo_path'])): ?>
-                            <img src="/<?= e($a['photo_path']) ?>" style="width:40px;height:40px;object-fit:cover;border-radius:50%" alt="">
-                        <?php else: ?>
-                            <span style="display:inline-flex;align-items:center;justify-content:center;width:40px;height:40px;border-radius:50%;background:#e9ecef;color:#adb5bd;font-size:1.3rem;"><i class="bi bi-person-fill"></i></span>
-                        <?php endif; ?>
+                        <img src="<?= e(imageUrl($a['photo_path'], 'actor')) ?>"
+                            style="width:40px;height:40px;object-fit:cover;border-radius:50%" alt="">
                     </td>
                     <td><?= e($a['name']) ?></td>
                     <td><span class="badge bg-secondary"><?= (int)$a['movie_count'] ?></span></td>
                     <td class="text-end">
-                        <a href="?delete=<?= (int)$a['id'] ?>" class="btn btn-sm btn-outline-danger"
-                            onclick="return confirm('Delete actor: <?= e(addslashes($a['name'])) ?>?')">
-                            <i class="bi bi-trash"></i>
+                        <a href="/admin/actors/edit.php?id=<?= (int)$a['id'] ?>"
+                            class="btn btn-sm btn-outline-secondary me-1">
+                            <i class="bi bi-pencil"></i>
                         </a>
+                        <form method="post" action="/admin/actors/delete.php" class="d-inline">
+                            <input type="hidden" name="id" value="<?= (int)$a['id'] ?>">
+                            <button type="submit" class="btn btn-sm btn-outline-danger"
+                                onclick="return confirm('Delete actor: <?= e(addslashes($a['name'])) ?>?')">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
                     </td>
                 </tr>
             <?php endforeach; ?>
         </tbody>
     </table>
 <?php endif; ?>
+
+<?php render_pagination($page, $pages, '/admin/actors/index.php?'); ?>
 
 <?php require_once __DIR__ . '/../../app/views/partials/footer_admin.php'; ?>

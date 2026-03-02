@@ -10,7 +10,11 @@ require_once __DIR__ . '/../../app/config/db.php';
 ensure_session();
 require_admin();
 
-$id = (int) ($_GET['id'] ?? 0);
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    redirect('/admin/movies/index.php');
+}
+
+$id = (int) ($_POST['id'] ?? 0);
 if ($id <= 0) {
     redirect('/admin/movies/index.php');
 }
@@ -25,13 +29,17 @@ if (!$movie) {
 }
 
 // Delete poster file
-if ($movie['poster_path'] && file_exists(__DIR__ . '/../../' . $movie['poster_path'])) {
-    @unlink(__DIR__ . '/../../' . $movie['poster_path']);
+if ($movie['poster_path'] && file_exists(upload_path($movie['poster_path']))) {
+    if (!unlink(upload_path($movie['poster_path']))) {
+        error_log('Failed to delete poster: ' . upload_path($movie['poster_path']));
+    }
 }
 
 // Delete banner file
-if ($movie['banner_path'] && file_exists(__DIR__ . '/../../' . $movie['banner_path'])) {
-    @unlink(__DIR__ . '/../../' . $movie['banner_path']);
+if ($movie['banner_path'] && file_exists(upload_path($movie['banner_path']))) {
+    if (!unlink(upload_path($movie['banner_path']))) {
+        error_log('Failed to delete banner: ' . upload_path($movie['banner_path']));
+    }
 }
 
 $del = $pdo->prepare("DELETE FROM movies WHERE id = :id");

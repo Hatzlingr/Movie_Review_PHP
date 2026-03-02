@@ -23,6 +23,10 @@ if ($movieId <= 0 || $reviewText === '') {
     flash_set('danger', 'Review text cannot be empty.');
     redirect($redirect);
 }
+if (mb_strlen($reviewText) > 5000) {
+    flash_set('danger', 'Review is too long (max 5000 characters).');
+    redirect($redirect);
+}
 
 $userId = current_user()['id'];
 

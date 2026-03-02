@@ -10,8 +10,12 @@ require_once __DIR__ . '/../app/config/db.php';
 ensure_session();
 require_login();
 
-$movieId  = (int) ($_GET['movie_id'] ?? 0);
-$redirect = $_GET['redirect'] ?? '/index.php';
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    redirect('/index.php');
+}
+
+$movieId  = (int) ($_POST['movie_id'] ?? 0);
+$redirect = $_POST['redirect'] ?? '/index.php';
 
 if ($movieId <= 0) {
     flash_set('danger', 'Invalid movie.');
