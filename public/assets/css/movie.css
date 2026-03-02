@@ -620,12 +620,6 @@ body.movie-page .navbar-custom {
 
 .login-prompt-box a { color: var(--btn-outline-hover); }
 
-/* flash messages inside page */
-.flash-inner {
-    max-width: 980px;
-    margin: 12px auto 0;
-    padding: 0 20px;
-}
 
 /* ── Responsive tweaks ──────────────────────────────────────── */
 @media (max-width: 576px) {

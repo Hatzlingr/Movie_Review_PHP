@@ -56,26 +56,16 @@ require_once __DIR__ . '/../app/views/partials/navbar.php';
 ?>
 
 <main>
-
-    <!-- ── FLASH ─────────────────────────────────────────────── -->
-    <?php foreach (flash_get() as $flash): ?>
-        <div class="flash-inner">
-            <div class="alert alert-<?= e($flash['type']) ?> alert-dismissible fade show" role="alert">
-                <?= e($flash['message']) ?>
-                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
-            </div>
-        </div>
-    <?php endforeach; ?>
-
+    <?php flash_render(); ?>
     <!-- ── HERO BANNER ───────────────────────────────────────── -->
     <div class="movie-hero">
-        <img class="hero-bg" src="<?= e(imageUrl($movie['banner_path'] ?? null, 'banner')) ?>" alt="<?= e($movie['title']) ?> backdrop"
-            onerror="this.src='https://placehold.co/1280x720/2f2543/ffffff?text=No+Banner';this.onerror=null;">
+        <img class="hero-bg" src="<?= e(imageUrl($movie['banner_path'] ?? null, 'banner')) ?>" alt="<?= e($movie['title']) ?>">
         <div class="hero-overlay"></div>
     </div>
 
     <!-- ── MOVIE INFO PANEL ──────────────────────────────────── -->
     <div class="movie-info-panel">
+        <?php flash_render(); ?>
         <div class="movie-info-inner">
 
             <!-- Poster thumbnail -->
@@ -303,13 +293,13 @@ require_once __DIR__ . '/../app/views/partials/navbar.php';
                 <div class="my-rating-label">My Rating</div>
                 <div class="my-rating-title-sm"><?= e(mb_strtoupper($movie['title'])) ?> <?php if ($movie['release_year']): ?>(<?= e($movie['release_year']) ?>)<?php endif; ?></div>
                 <div class="my-rating-question">What did you think of it?</div>
-                <!-- Unified Rating + Review form -->
-                <form method="post" action="/action/rating_save.php">
-                    <input type="hidden" name="movie_id" value="<?= $id ?>">
-                    <input type="hidden" name="redirect" value="/public/movie.php?id=<?= $id ?>">
+                <div class="my-rating-hint">Pick a star rating and leave a comment</div>
 
-                    <!-- Stars (required) -->
-                    <div class="star-rating-wrap">
+                <!-- Rating -->
+                <div class="star-rating-wrap">
+                    <form method="post" action="/action/rating_save.php" class="d-flex align-items-center gap-3 flex-wrap">
+                        <input type="hidden" name="movie_id" value="<?= $id ?>">
+                        <input type="hidden" name="redirect" value="/public/movie.php?id=<?= $id ?>">
                         <span class="star-rating-label">Your rating:</span>
                         <div class="custom-star-input" data-current="<?= (int)$myRating ?>">
                             <?php for ($s = 1; $s <= 5; $s++): ?>
@@ -319,23 +309,34 @@ require_once __DIR__ . '/../app/views/partials/navbar.php';
                             <input type="hidden" name="score" id="scoreInput"
                                 value="<?= (int)$myRating ?: '' ?>" required>
                         </div>
-                    </div>
+                        <button type="submit" class="submit-review-btn submit-review-btn--rate">
+                            <?= $myRating !== null ? 'Update Rating' : 'Rate' ?>
+                        </button>
+                    </form>
+                </div>
 
-                    <!-- Review (optional) -->
-                    <div class="comment-box-movie">
+                <!-- Review textarea -->
+                <div class="comment-box-movie">
+                    <form method="post" action="/action/review_save.php">
+                        <input type="hidden" name="movie_id" value="<?= $id ?>">
+                        <input type="hidden" name="redirect" value="/public/movie.php?id=<?= $id ?>">
+                        <?php if ($myReview): ?>
+                            <input type="hidden" name="review_id" value="<?= (int)$myReview['id'] ?>">
+                        <?php endif; ?>
                         <textarea name="review_text"
-                            placeholder="Leave a comment (optional)…"><?= e($myReview['review_text'] ?? '') ?></textarea>
+                            placeholder="Leave a comment…"
+                            required><?= e($myReview['review_text'] ?? '') ?></textarea>
                         <div class="comment-submit-row">
                             <span class="review-status-hint">
-                                <?= ($myRating !== null || $myReview !== null) ? 'Editing your rating &amp; review' : 'Rate this movie' ?>
+                                <?= $myReview ? 'Editing your review' : 'Writing a new review' ?>
                             </span>
                             <button type="submit" class="submit-review-btn">
                                 <i class="fa-solid fa-paper-plane"></i>
-                                <?= ($myRating !== null || $myReview !== null) ? 'Update' : 'Rate' ?>
+                                <?= $myReview ? 'Update Review' : 'Post Review' ?>
                             </button>
                         </div>
-                    </div>
-                </form>
+                    </form>
+                </div>
 
             <?php else: ?>
                 <div class="login-prompt-box">

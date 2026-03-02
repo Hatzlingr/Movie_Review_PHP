@@ -16,34 +16,21 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     redirect($redirect);
 }
 
-$movieId    = (int) ($_POST['movie_id'] ?? 0);
-$score      = (int) ($_POST['score']    ?? 0);
-$reviewText = trim($_POST['review_text'] ?? '');
+$movieId = (int) ($_POST['movie_id'] ?? 0);
+$score   = (int) ($_POST['score']    ?? 0);
 
 if ($movieId <= 0 || $score < 1 || $score > 5) {
-    flash_set('danger', 'Invalid rating data. Please pick a star rating.');
+    flash_set('danger', 'Invalid rating data.');
     redirect($redirect);
 }
 
 $userId = current_user()['id'];
 
-// Upsert rating
 $stmt = $pdo->prepare(
     "INSERT INTO ratings (user_id, movie_id, score) VALUES (:u, :m, :s)
      AS new_rt ON DUPLICATE KEY UPDATE score = new_rt.score"
 );
 $stmt->execute([':u' => $userId, ':m' => $movieId, ':s' => $score]);
 
-// Upsert review (optional — only if user typed something)
-if ($reviewText !== '') {
-    $stmt = $pdo->prepare(
-        "INSERT INTO reviews (user_id, movie_id, review_text) VALUES (:u, :m, :t)
-         AS new_rv ON DUPLICATE KEY UPDATE review_text = new_rv.review_text"
-    );
-    $stmt->execute([':u' => $userId, ':m' => $movieId, ':t' => $reviewText]);
-    flash_set('success', 'Your rating and review have been saved.');
-} else {
-    flash_set('success', 'Your rating has been saved.');
-}
-
+flash_set('success', 'Your rating has been saved.');
 redirect($redirect);

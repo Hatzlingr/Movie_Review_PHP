@@ -1,0 +1,876 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ELITISRIPIW - Enola Holmes</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #1a1625;
+    --bg2: #221d30;
+    --card: #2a2340;
+    --card2: #312a4a;
+    --purple: #7c5cbf;
+    --purple-light: #9b7de0;
+    --accent: #a855f7;
+    --text: #e8e0f5;
+    --muted: #8a7faa;
+    --border: rgba(124,92,191,0.25);
+    --star-active: #f59e0b;
+    --star-inactive: #4a4060;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    max-width: 480px;
+    margin: 0 auto;
+    min-height: 100vh;
+  }
+
+  /* NAVBAR */
+  .navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 16px 20px;
+    background: var(--bg);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .navbar .logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    letter-spacing: 2px;
+    color: var(--text);
+  }
+
+  .navbar .search-bar {
+    display: flex;
+    align-items: center;
+    background: var(--card2);
+    border-radius: 20px;
+    padding: 6px 14px;
+    gap: 8px;
+    flex: 1;
+    max-width: 200px;
+  }
+
+  .navbar .search-bar svg { color: var(--muted); flex-shrink: 0; }
+
+  .navbar .search-bar input {
+    background: none;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    width: 100%;
+  }
+
+  .navbar .avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--card2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--purple);
+  }
+
+  /* HERO */
+  .hero {
+    position: relative;
+    height: 240px;
+    overflow: hidden;
+  }
+
+  .hero img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(26,22,37,0.2), rgba(26,22,37,0.9));
+  }
+
+  /* MOVIE INFO */
+  .movie-info {
+    background: linear-gradient(to bottom, rgba(26,22,37,0.95), var(--bg));
+    padding: 0 20px 20px;
+    margin-top: -40px;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    gap: 16px;
+  }
+
+  .movie-poster {
+    flex-shrink: 0;
+    width: 110px;
+    margin-top: -60px;
+  }
+
+  .movie-poster img {
+    width: 110px;
+    height: 160px;
+    object-fit: cover;
+    border-radius: 10px;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+    border: 2px solid var(--border);
+  }
+
+  .movie-details { flex: 1; padding-top: 8px; }
+
+  .movie-details h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 24px;
+    letter-spacing: 1px;
+    line-height: 1.1;
+    color: #fff;
+  }
+
+  .movie-meta {
+    font-size: 12px;
+    color: var(--muted);
+    margin: 4px 0 8px;
+  }
+
+  .genres {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
+
+  .genre-tag {
+    background: rgba(124,92,191,0.3);
+    border: 1px solid var(--purple);
+    color: var(--purple-light);
+    font-size: 10px;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .movie-desc {
+    font-size: 11px;
+    color: var(--muted);
+    line-height: 1.5;
+    margin-bottom: 12px;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .rating-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .avg-rating {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .avg-rating .score {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 30px;
+    color: #fff;
+    line-height: 1;
+  }
+
+  .stars {
+    display: flex;
+    gap: 2px;
+  }
+
+  .stars svg { width: 16px; height: 16px; }
+  .stars.lg svg { width: 20px; height: 20px; }
+  .stars.xl svg { width: 36px; height: 36px; cursor: pointer; transition: transform 0.15s; }
+  .stars.xl svg:hover { transform: scale(1.2); }
+
+  .star-filled { fill: var(--star-active); stroke: var(--star-active); }
+  .star-empty { fill: none; stroke: var(--star-inactive); }
+  .star-empty-input { fill: none; stroke: var(--muted); }
+
+  .watchlist-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: 1.5px solid var(--purple);
+    color: var(--purple-light);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 6px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .watchlist-btn:hover {
+    background: var(--purple);
+    color: #fff;
+  }
+
+  /* TABS */
+  .tabs {
+    display: flex;
+    padding: 0 20px;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+
+  .tab {
+    padding: 8px 20px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s;
+  }
+
+  .tab.active {
+    background: var(--purple);
+    color: #fff;
+  }
+
+  .tab:not(.active) {
+    background: var(--card);
+    color: var(--muted);
+  }
+
+  /* SECTION */
+  .section { padding: 0 20px 24px; }
+
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px;
+    letter-spacing: 1px;
+    margin-bottom: 16px;
+    color: var(--text);
+  }
+
+  /* CAST */
+  .cast-scroll {
+    display: flex;
+    gap: 12px;
+    overflow-x: auto;
+    padding-bottom: 8px;
+    scrollbar-width: none;
+  }
+  .cast-scroll::-webkit-scrollbar { display: none; }
+
+  .cast-card {
+    flex-shrink: 0;
+    width: 100px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: var(--card);
+    border: 1px solid var(--border);
+    position: relative;
+  }
+
+  .cast-card img {
+    width: 100px;
+    height: 110px;
+    object-fit: cover;
+    display: block;
+  }
+
+  .cast-info {
+    padding: 8px;
+  }
+
+  .cast-name {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.3;
+  }
+
+  .cast-role {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  .cast-initials {
+    width: 100px;
+    height: 110px;
+    background: var(--card2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--purple-light);
+  }
+
+  .scroll-arrow {
+    flex-shrink: 0;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--card2);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-self: center;
+    cursor: pointer;
+    color: var(--text);
+  }
+
+  /* REVIEW CARD */
+  .review-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    margin-bottom: 12px;
+    animation: fadeUp 0.4s ease both;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .review-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  .reviewer {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .reviewer-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--card2);
+    border: 2px solid var(--purple);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--purple-light);
+  }
+
+  .reviewer-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .reviewer-date {
+    font-size: 10px;
+    color: var(--muted);
+    margin-top: 1px;
+  }
+
+  .review-rating {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .review-score {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+  }
+
+  .review-text {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 12px;
+  }
+
+  .review-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    border-top: 1px solid var(--border);
+    padding-top: 10px;
+  }
+
+  .action-btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: none;
+    border: none;
+    color: var(--muted);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 11px;
+    cursor: pointer;
+    transition: color 0.2s;
+  }
+
+  .action-btn:hover { color: var(--accent); }
+  .action-btn svg { width: 14px; height: 14px; }
+
+  /* PAGINATION */
+  .pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px 20px 24px;
+  }
+
+  .page-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    border: none;
+    transition: all 0.2s;
+  }
+
+  .page-btn.active { background: var(--purple); color: #fff; }
+  .page-btn:not(.active) { background: var(--card); color: var(--muted); }
+  .page-btn:not(.active):hover { background: var(--card2); color: var(--text); }
+
+  /* MY RATING */
+  .my-rating-section {
+    padding: 20px;
+    border-top: 1px solid var(--border);
+    background: var(--bg2);
+  }
+
+  .my-rating-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--accent);
+    margin-bottom: 12px;
+  }
+
+  .my-rating-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 26px;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+
+  .my-rating-question {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .my-rating-hint {
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  .star-input-box {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 14px;
+  }
+
+  .star-input-box svg {
+    width: 38px;
+    height: 38px;
+    cursor: pointer;
+    transition: transform 0.15s, fill 0.15s;
+  }
+
+  .star-input-box svg:hover { transform: scale(1.25); }
+
+  .comment-box {
+    background: var(--card);
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 14px;
+    position: relative;
+  }
+
+  .comment-box textarea {
+    width: 100%;
+    background: none;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    resize: none;
+    min-height: 90px;
+    line-height: 1.6;
+  }
+
+  .comment-box textarea::placeholder { color: var(--muted); }
+
+  .comment-submit {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: 8px;
+    border-top: 1px solid var(--border);
+    margin-top: 8px;
+  }
+
+  .submit-btn {
+    background: var(--purple);
+    border: none;
+    width: 34px;
+    height: 34px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.15s;
+    color: #fff;
+  }
+
+  .submit-btn:hover { background: var(--accent); transform: scale(1.05); }
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav class="navbar">
+  <div class="logo">ELITISRIPIW</div>
+  <div class="search-bar">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <input type="text" value="Enola Holmes" />
+  </div>
+  <div class="avatar">
+    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9b7de0" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+  </div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <img src="https://image.tmdb.org/t/p/original/xYsZqOOmGe2UvUQXxFtH5tBMnqn.jpg" 
+       onerror="this.src='https://picsum.photos/480/240?random=1'" 
+       alt="Enola Holmes backdrop" />
+</div>
+
+<!-- MOVIE INFO -->
+<div class="movie-info">
+  <div class="movie-poster">
+    <img src="https://image.tmdb.org/t/p/w300/riYInlsq2kf1AWoGm80JQW5dLKp.jpg" 
+         onerror="this.src='https://picsum.photos/110/160?random=2'" 
+         alt="Enola Holmes poster" />
+  </div>
+  <div class="movie-details">
+    <h1>ENOLA HOLMES (2020)</h1>
+    <div class="movie-meta">2020 &nbsp;·&nbsp; Duration : 2h 3m</div>
+    <div class="genres">
+      <span class="genre-tag">Mystery</span>
+      <span class="genre-tag">Adventure</span>
+    </div>
+    <p class="movie-desc">Enola Holmes as the intelligent teen sister of Sherlock and Mycroft Holmes. When her mother disappears, Enola escapes her brothers' plans for finishing school, using her own deduction skills to solve a mystery involving a runaway lord while navigating 1880s London.</p>
+    <div class="rating-row">
+      <div class="avg-rating">
+        <span class="score">3.1</span>
+        <div class="stars">
+          <!-- 3.1 stars: 3 filled, 2 empty -->
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" class="star-filled"/></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" class="star-filled"/></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" class="star-filled"/></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" class="star-empty"/></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" class="star-empty"/></svg>
+        </div>
+      </div>
+      <button class="watchlist-btn">
+        Add To Watch List
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab active">Reviews</button>
+  <button class="tab">Cast & Crew</button>
+</div>
+
+<!-- CAST & CREW -->
+<div class="section">
+  <div class="section-title">Cast & Crew</div>
+  <div style="display:flex; align-items:center; gap:10px;">
+    <div class="cast-scroll" id="castScroll">
+      <div class="cast-card">
+        <div class="cast-initials">HB</div>
+        <div class="cast-info">
+          <div class="cast-name">Harry Bradbeer</div>
+          <div class="cast-role">Director</div>
+        </div>
+      </div>
+      <div class="cast-card">
+        <div class="cast-initials" style="background:linear-gradient(135deg,#3d2a5c,#4a3570);">MB</div>
+        <div class="cast-info">
+          <div class="cast-name">Millie Bobby Brown</div>
+          <div class="cast-role">Enola Holmes</div>
+        </div>
+      </div>
+      <div class="cast-card">
+        <div class="cast-initials" style="background:linear-gradient(135deg,#1e2d3d,#2a3f55);">LP</div>
+        <div class="cast-info">
+          <div class="cast-name">Louis Partridge</div>
+          <div class="cast-role">Tewkesbury</div>
+        </div>
+      </div>
+      <div class="cast-card">
+        <div class="cast-initials" style="background:linear-gradient(135deg,#2d1e3d,#3d2a50);">HC</div>
+        <div class="cast-info">
+          <div class="cast-name">Henry Cavill</div>
+          <div class="cast-role">Sherlock Holmes</div>
+        </div>
+      </div>
+      <div class="cast-card">
+        <div class="cast-initials" style="background:linear-gradient(135deg,#1e3d2d,#2a5040);">HR</div>
+        <div class="cast-info">
+          <div class="cast-name">Helena Bonham Carter</div>
+          <div class="cast-role">Eudoria Holmes</div>
+        </div>
+      </div>
+    </div>
+    <div class="scroll-arrow" onclick="document.getElementById('castScroll').scrollBy({left:120,behavior:'smooth'})">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>
+  </div>
+</div>
+
+<!-- REVIEWS -->
+<div class="section">
+  <div class="section-title">Reviews</div>
+
+  <!-- Review 1 -->
+  <div class="review-card">
+    <div class="review-header">
+      <div class="reviewer">
+        <div class="reviewer-avatar">S</div>
+        <div>
+          <div class="reviewer-name">Syawal</div>
+          <div class="reviewer-date">2/12/2026</div>
+        </div>
+      </div>
+      <div class="review-rating">
+        <span class="review-score">3/5</span>
+        <div class="stars">
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" class="star-filled"/></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" class="star-filled"/></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" class="star-filled"/></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" class="star-empty"/></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" class="star-empty"/></svg>
+        </div>
+      </div>
+    </div>
+    <p class="review-text">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not</p>
+    <div class="review-actions">
+      <button class="action-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
+        200k
+      </button>
+      <button class="action-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"/><path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg>
+        310k
+      </button>
+    </div>
+  </div>
+
+  <!-- Review 2 -->
+  <div class="review-card" style="animation-delay:0.1s">
+    <div class="review-header">
+      <div class="reviewer">
+        <div class="reviewer-avatar" style="border-color:#5b4a8a;">S</div>
+        <div>
+          <div class="reviewer-name">Syawal</div>
+          <div class="reviewer-date">2/12/2026</div>
+        </div>
+      </div>
+      <div class="review-rating">
+        <span class="review-score">3/5</span>
+        <div class="stars">
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" class="star-filled"/></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" class="star-filled"/></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" class="star-filled"/></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" class="star-empty"/></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" class="star-empty"/></svg>
+        </div>
+      </div>
+    </div>
+    <p class="review-text">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not</p>
+    <div class="review-actions">
+      <button class="action-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
+        200k
+      </button>
+      <button class="action-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"/><path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg>
+        310k
+      </button>
+    </div>
+  </div>
+
+  <!-- Review 3 -->
+  <div class="review-card" style="animation-delay:0.2s">
+    <div class="review-header">
+      <div class="reviewer">
+        <div class="reviewer-avatar" style="border-color:#4a3570;">S</div>
+        <div>
+          <div class="reviewer-name">Syawal</div>
+          <div class="reviewer-date">2/12/2026</div>
+        </div>
+      </div>
+      <div class="review-rating">
+        <span class="review-score">3/5</span>
+        <div class="stars">
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" class="star-filled"/></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" class="star-filled"/></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" class="star-filled"/></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" class="star-empty"/></svg>
+          <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" class="star-empty"/></svg>
+        </div>
+      </div>
+    </div>
+    <p class="review-text">Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not</p>
+    <div class="review-actions">
+      <button class="action-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 9V5a3 3 0 0 0-3-3l-4 9v11h11.28a2 2 0 0 0 2-1.7l1.38-9a2 2 0 0 0-2-2.3H14z"/><path d="M7 22H4a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h3"/></svg>
+        200k
+      </button>
+      <button class="action-btn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10 15v4a3 3 0 0 0 3 3l4-9V2H5.72a2 2 0 0 0-2 1.7l-1.38 9a2 2 0 0 0 2 2.3H10z"/><path d="M17 2h2.67A2.31 2.31 0 0 1 22 4v7a2.31 2.31 0 0 1-2.33 2H17"/></svg>
+        310k
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- PAGINATION -->
+<div class="pagination">
+  <button class="page-btn">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="15 18 9 12 15 6"/></svg>
+  </button>
+  <button class="page-btn active">1</button>
+  <button class="page-btn">2</button>
+  <button class="page-btn">3</button>
+  <button class="page-btn">4</button>
+  <button class="page-btn">5</button>
+  <button class="page-btn">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+  </button>
+</div>
+
+<!-- MY RATING -->
+<div class="my-rating-section">
+  <div class="my-rating-label">My Rating</div>
+  <div class="my-rating-title">ENOLA HOLMES (2020)</div>
+  <div class="my-rating-question">What did you think of it?</div>
+  <div class="my-rating-hint">Pick a star rating</div>
+
+  <div class="star-input-box" id="starInputBox">
+    <svg viewBox="0 0 24 24" data-index="1" onclick="setRating(1)"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" class="star-empty-input"/></svg>
+    <svg viewBox="0 0 24 24" data-index="2" onclick="setRating(2)"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" class="star-empty-input"/></svg>
+    <svg viewBox="0 0 24 24" data-index="3" onclick="setRating(3)"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" class="star-empty-input"/></svg>
+    <svg viewBox="0 0 24 24" data-index="4" onclick="setRating(4)"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" class="star-empty-input"/></svg>
+    <svg viewBox="0 0 24 24" data-index="5" onclick="setRating(5)"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" class="star-empty-input"/></svg>
+  </div>
+
+  <div class="comment-box">
+    <textarea placeholder="Leave a Comment..."></textarea>
+    <div class="comment-submit">
+      <button class="submit-btn">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let currentRating = 0;
+
+  function setRating(rating) {
+    currentRating = rating;
+    const stars = document.querySelectorAll('#starInputBox svg polygon');
+    stars.forEach((poly, i) => {
+      poly.className.baseVal = i < rating ? 'star-filled' : 'star-empty-input';
+    });
+  }
+
+  // Hover effect for stars
+  document.querySelectorAll('#starInputBox svg').forEach((svg, idx) => {
+    svg.addEventListener('mouseenter', () => {
+      const stars = document.querySelectorAll('#starInputBox svg polygon');
+      stars.forEach((poly, i) => {
+        poly.className.baseVal = i <= idx ? 'star-filled' : 'star-empty-input';
+      });
+    });
+    svg.addEventListener('mouseleave', () => {
+      const stars = document.querySelectorAll('#starInputBox svg polygon');
+      stars.forEach((poly, i) => {
+        poly.className.baseVal = i < currentRating ? 'star-filled' : 'star-empty-input';
+      });
+    });
+  });
+
+  // Tab switching
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+    });
+  });
+
+  // Pagination
+  document.querySelectorAll('.pagination .page-btn').forEach(btn => {
+    if (!btn.querySelector('svg')) {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.pagination .page-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+      });
+    }
+  });
+</script>
+
+</body>
+</html>
