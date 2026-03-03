@@ -44,10 +44,38 @@ class MovieRepository
         ];
     }
 
+    /**
+     * Get movie suggestions for autocomplete dropdown.
+     * Returns limited set of movies matching query.
+     */
+    public function suggestMovies(string $q, int $limit = 8): array
+    {
+        if (trim($q) === '') {
+            return [];
+        }
+
+        $stmt = $this->pdo->prepare(
+            "SELECT m.id, m.title, m.release_year, m.poster_path,
+                    ROUND(AVG(r.score), 1) AS avg_rating,
+                    COUNT(r.id)            AS total_ratings
+             FROM movies m
+             LEFT JOIN ratings r ON r.movie_id = m.id
+             WHERE m.title LIKE :q
+             GROUP BY m.id, m.title, m.release_year, m.poster_path
+             ORDER BY m.release_year DESC, m.title ASC
+             LIMIT :lim"
+        );
+        $stmt->bindValue(':q', "%{$q}%", PDO::PARAM_STR);
+        $stmt->bindValue(':lim', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     // ============================
-    // TAMBAHKAN METHOD INI
+    // GANTI METHOD LAMA DENGAN INI
     // ============================
-    public function getBestMovieByMonth(int $month, ?int $year = null): ?array
+    public function getBestMoviesOfMonth(int $month, ?int $year = null, int $limit = 5): array
     {
         if ($month < 1 || $month > 12) {
             throw new InvalidArgumentException('Month must be between 1 and 12');
@@ -68,15 +96,15 @@ class MovieRepository
              LEFT JOIN ratings all_r ON all_r.movie_id = m.id
              GROUP BY m.id, m.title, m.description, m.release_year, m.duration_minutes, m.poster_path, m.banner_path
              ORDER BY avg_score DESC, rating_count DESC, m.id ASC
-             LIMIT 1"
+             LIMIT :lim"
         );
 
-        $stmt->execute([':month' => $month, ':year' => $year]);
-        $movie = $stmt->fetch(PDO::FETCH_ASSOC);
+        $stmt->execute([':month' => $month, ':year' => $year, ':lim' => $limit]);
+        $movies = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-        // Fallback: best movie of all time if no ratings this month
-        if (!$movie) {
-            $fallback = $this->pdo->query(
+        // Fallback: Jika tidak ada rating bulan ini, ambil film terbaik sepanjang masa
+        if (empty($movies)) {
+            $fallback = $this->pdo->prepare(
                 "SELECT m.id, m.title, m.description, m.release_year, m.duration_minutes,
                         m.poster_path, m.banner_path,
                         ROUND(AVG(r.score), 1) AS avg_rating,
@@ -86,13 +114,64 @@ class MovieRepository
                  JOIN ratings r ON r.movie_id = m.id
                  GROUP BY m.id, m.title, m.description, m.release_year, m.duration_minutes, m.poster_path, m.banner_path
                  ORDER BY avg_score DESC, rating_count DESC, m.id ASC
-                 LIMIT 1"
+                 LIMIT :lim"
             );
-            $movie = $fallback->fetch(PDO::FETCH_ASSOC) ?: null;
+            $fallback->execute([':lim' => $limit]);
+            $movies = $fallback->fetchAll(PDO::FETCH_ASSOC);
         }
 
-        return $movie ?: null;
+        return $movies;
     }
+
+    // // ============================
+    // // TAMBAHKAN METHOD INI
+    // // ============================
+    // public function getBestMovieByMonth(int $month, ?int $year = null): ?array
+    // {
+    //     if ($month < 1 || $month > 12) {
+    //         throw new InvalidArgumentException('Month must be between 1 and 12');
+    //     }
+
+    //     $year = $year ?? (int) date('Y');
+
+    //     $stmt = $this->pdo->prepare(
+    //         "SELECT m.id, m.title, m.description, m.release_year, m.duration_minutes,
+    //                 m.poster_path, m.banner_path,
+    //                 ROUND(AVG(all_r.score), 1) AS avg_rating,
+    //                 AVG(month_r.score)          AS avg_score,
+    //                 COUNT(month_r.id)           AS rating_count
+    //          FROM movies m
+    //          JOIN ratings month_r ON month_r.movie_id = m.id
+    //               AND MONTH(month_r.created_at) = :month
+    //               AND YEAR(month_r.created_at)  = :year
+    //          LEFT JOIN ratings all_r ON all_r.movie_id = m.id
+    //          GROUP BY m.id, m.title, m.description, m.release_year, m.duration_minutes, m.poster_path, m.banner_path
+    //          ORDER BY avg_score DESC, rating_count DESC, m.id ASC
+    //          LIMIT 1"
+    //     );
+
+    //     $stmt->execute([':month' => $month, ':year' => $year]);
+    //     $movie = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    //     // Fallback: best movie of all time if no ratings this month
+    //     if (!$movie) {
+    //         $fallback = $this->pdo->query(
+    //             "SELECT m.id, m.title, m.description, m.release_year, m.duration_minutes,
+    //                     m.poster_path, m.banner_path,
+    //                     ROUND(AVG(r.score), 1) AS avg_rating,
+    //                     AVG(r.score)            AS avg_score,
+    //                     COUNT(r.id)             AS rating_count
+    //              FROM movies m
+    //              JOIN ratings r ON r.movie_id = m.id
+    //              GROUP BY m.id, m.title, m.description, m.release_year, m.duration_minutes, m.poster_path, m.banner_path
+    //              ORDER BY avg_score DESC, rating_count DESC, m.id ASC
+    //              LIMIT 1"
+    //         );
+    //         $movie = $fallback->fetch(PDO::FETCH_ASSOC) ?: null;
+    //     }
+
+    //     return $movie ?: null;
+    // }
 
     public function getMovieById(int $id): ?array
     {
@@ -299,3 +378,4 @@ class MovieRepository
         return ['data' => $stmt->fetchAll(PDO::FETCH_ASSOC), 'total' => $total];
     }
 }
+

@@ -65,6 +65,25 @@ for ($s = 1; $s <= 5; $s++) {
     $ratingDist[$s] = $ratingDist[$s] ?? 0;
 }
 
+// --- Additional stats ---
+$avgRating = $pdo->query(
+    "SELECT ROUND(AVG(score), 2) AS avg FROM ratings"
+)->fetch()['avg'] ?? 0;
+
+$totalWatchlist = $pdo->query(
+    "SELECT COUNT(*) FROM watchlists"
+)->fetchColumn();
+
+$adminCount = $pdo->query(
+    "SELECT COUNT(*) FROM users WHERE role = 'admin'"
+)->fetchColumn();
+
+$userEngagement = $pdo->query(
+    "SELECT ROUND(COUNT(rv.id) / COUNT(DISTINCT u.id), 2) AS avg_reviews_per_user
+     FROM users u
+     LEFT JOIN reviews rv ON rv.user_id = u.id"
+)->fetch()['avg_reviews_per_user'] ?? 0;
+
 $pageTitle = 'Admin Dashboard';
 require_once __DIR__ . '/../app/views/partials/header_admin.php';
 ?>
@@ -93,6 +112,69 @@ require_once __DIR__ . '/../app/views/partials/header_admin.php';
             </a>
         </div>
     <?php endforeach; ?>
+</div>
+
+<!-- ===== Additional Stats ===== -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="text-muted small mb-1">Avg Rating</p>
+                        <h3 class="fw-bold mb-0"><?= number_format((float)$avgRating, 2) ?></h3>
+                        <small class="text-muted">out of 5</small>
+                    </div>
+                    <i class="bi bi-star-fill fs-2 text-warning opacity-75"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="text-muted small mb-1">Watchlist Items</p>
+                        <h3 class="fw-bold mb-0"><?= (int)$totalWatchlist ?></h3>
+                        <small class="text-muted">from all users</small>
+                    </div>
+                    <i class="bi bi-bookmark-check fs-2 text-primary opacity-75"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="text-muted small mb-1">Admin Users</p>
+                        <h3 class="fw-bold mb-0"><?= (int)$adminCount ?></h3>
+                        <small class="text-muted">moderators</small>
+                    </div>
+                    <i class="bi bi-shield-lock fs-2 text-danger opacity-75"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-6 col-md-3">
+        <div class="card border-0 shadow-sm h-100">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <p class="text-muted small mb-1">Avg Reviews/User</p>
+                        <h3 class="fw-bold mb-0"><?= number_format((float)$userEngagement, 2) ?></h3>
+                        <small class="text-muted">engagement</small>
+                    </div>
+                    <i class="bi bi-chat-dots fs-2 text-info opacity-75"></i>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- ===== Row 1: Recent Movies + Recent Users ===== -->
