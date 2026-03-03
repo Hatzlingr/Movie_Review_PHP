@@ -96,69 +96,90 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $pageTitle = 'Register';
-require_once __DIR__ . '/../app/views/partials/header.php';
-require_once __DIR__ . '/../app/views/partials/navbar.php';
 ?>
-<main class="container mt-5 pt-5 pb-5">
-    <div class="row justify-content-center">
-        <div class="col-md-5">
 
-            <div class="card shadow-sm">
-                <div class="card-body p-4">
-                    <h4 class="card-title fw-bold mb-4"><i class="bi bi-person-plus"></i> Create Account</h4>
+<!DOCTYPE html>
+<html lang="id">
 
-                    <?php if ($e_general): ?>
-                        <div class="alert alert-danger"><?= e($e_general) ?></div>
-                    <?php endif; ?>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?= e($pageTitle ?? 'ELITISRIPIW') ?></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="/public/assets/css/base.css">
+    <link rel="stylesheet" href="/public/assets/css/navbar.css">
+    <link rel="stylesheet" href="/public/assets/css/hero.css">
+    <link rel="stylesheet" href="/public/assets/css/home.css">
+    <link rel="stylesheet" href="/public/assets/css/dark-bs.css">
+    <link rel="stylesheet" href="/public/assets/css/responsive.css">
+    <?= $extraHeadHtml ?? '' ?>
+</head>
 
-                    <form method="post" novalidate>
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">Username</label>
-                            <input type="text" name="username"
-                                class="form-control <?= $e_username ? 'is-invalid' : '' ?>"
-                                value="<?= e($username) ?>" required autofocus maxlength="32">
-                            <?php if ($e_username): ?>
-                                <div class="invalid-feedback"><?= e($e_username) ?></div>
-                            <?php endif; ?>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">Email</label>
-                            <input type="email" name="email"
-                                class="form-control <?= $e_email ? 'is-invalid' : '' ?>"
-                                value="<?= e($email) ?>" required maxlength="255">
-                            <?php if ($e_email): ?>
-                                <div class="invalid-feedback"><?= e($e_email) ?></div>
-                            <?php endif; ?>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label fw-semibold">Password</label>
-                            <input type="password" name="password"
-                                class="form-control <?= $e_password ? 'is-invalid' : '' ?>"
-                                required minlength="8">
-                            <?php if ($e_password): ?>
-                                <div class="invalid-feedback"><?= e($e_password) ?></div>
-                            <?php endif; ?>
-                        </div>
-                        <div class="mb-4">
-                            <label class="form-label fw-semibold">Confirm Password</label>
-                            <input type="password" name="confirm"
-                                class="form-control <?= $e_confirm ? 'is-invalid' : '' ?>"
-                                required>
-                            <?php if ($e_confirm): ?>
-                                <div class="invalid-feedback"><?= e($e_confirm) ?></div>
-                            <?php endif; ?>
-                        </div>
-                        <button type="submit" class="btn btn-primary w-100">Register</button>
-                    </form>
+<body class="<?= e($bodyClass ?? '') ?>">
+    <main class="container mt-5 pt-5 pb-5">
+        <div class="row justify-content-center">
+            <div class="col-md-5">
 
-                    <hr>
-                    <p class="text-center mb-0">Already have an account?
-                        <a href="/auth/login.php">Log in</a>
-                    </p>
+                <div class="card shadow-sm">
+                    <div class="card-body p-4">
+                        <h4 class="card-title fw-bold mb-4"><i class="bi bi-person-plus"></i> Create Account</h4>
+
+                        <?php if ($e_general): ?>
+                            <div class="alert alert-danger"><?= e($e_general) ?></div>
+                        <?php endif; ?>
+
+                        <form method="post" novalidate>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Username</label>
+                                <input type="text" name="username"
+                                    class="form-control <?= $e_username ? 'is-invalid' : '' ?>"
+                                    value="<?= e($username) ?>" required autofocus maxlength="32">
+                                <?php if ($e_username): ?>
+                                    <div class="invalid-feedback"><?= e($e_username) ?></div>
+                                <?php endif; ?>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Email</label>
+                                <input type="email" name="email"
+                                    class="form-control <?= $e_email ? 'is-invalid' : '' ?>"
+                                    value="<?= e($email) ?>" required maxlength="255">
+                                <?php if ($e_email): ?>
+                                    <div class="invalid-feedback"><?= e($e_email) ?></div>
+                                <?php endif; ?>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold">Password</label>
+                                <input type="password" name="password"
+                                    class="form-control <?= $e_password ? 'is-invalid' : '' ?>"
+                                    required minlength="8">
+                                <?php if ($e_password): ?>
+                                    <div class="invalid-feedback"><?= e($e_password) ?></div>
+                                <?php endif; ?>
+                            </div>
+                            <div class="mb-4">
+                                <label class="form-label fw-semibold">Confirm Password</label>
+                                <input type="password" name="confirm"
+                                    class="form-control <?= $e_confirm ? 'is-invalid' : '' ?>"
+                                    required>
+                                <?php if ($e_confirm): ?>
+                                    <div class="invalid-feedback"><?= e($e_confirm) ?></div>
+                                <?php endif; ?>
+                            </div>
+                            <button type="submit" class="btn btn-primary w-100">Register</button>
+                        </form>
+
+                        <hr>
+                        <p class="text-center mb-0">Already have an account?
+                            <a href="/auth/login.php">Log in</a>
+                        </p>
+                    </div>
                 </div>
-            </div>
 
+            </div>
         </div>
-    </div>
-</main>
+    </main>
+</body>
+
 <?php require_once __DIR__ . '/../app/views/partials/footer.php'; ?>
