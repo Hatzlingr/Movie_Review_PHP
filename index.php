@@ -13,12 +13,6 @@ ensure_session();
 
 $repo = new MovieRepository($pdo);
 
-// // ── Hero: best movie this month ──────────────────────────────────────────────
-// $currentMonth = (int) date('n');
-// $currentYear  = (int) date('Y');
-// $heroMovie    = $repo->getBestMovieByMonth($currentMonth, $currentYear);
-// $monthName    = strtoupper(date('F', mktime(0, 0, 0, $currentMonth, 1)));
-
 // ── Hero: best 5 movies this month ───────────────────────────────────────────
 $currentMonth = (int) date('n');
 $currentYear  = (int) date('Y');
@@ -27,7 +21,7 @@ $monthName    = strtoupper(date('F', mktime(0, 0, 0, $currentMonth, 1)));
 // Ambil top 5 film terbaik
 $topMovies = $repo->getBestMoviesOfMonth($currentMonth, $currentYear, 5);
 
-// Beri ranking (1 = terbaik), lalu balik urutannya (reverse) agar tampil dari ranking 5 ke 1
+// Beri ranking (1 = terbaik)
 foreach ($topMovies as $idx => $m) {
     $topMovies[$idx]['rank'] = $idx + 1; 
 }
