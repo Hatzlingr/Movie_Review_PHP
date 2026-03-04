@@ -72,9 +72,6 @@ class MovieRepository
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    // ============================
-    // GANTI METHOD LAMA DENGAN INI
-    // ============================
     public function getBestMoviesOfMonth(int $month, ?int $year = null, int $limit = 5): array
     {
         if ($month < 1 || $month > 12) {
@@ -122,56 +119,6 @@ class MovieRepository
 
         return $movies;
     }
-
-    // // ============================
-    // // TAMBAHKAN METHOD INI
-    // // ============================
-    // public function getBestMovieByMonth(int $month, ?int $year = null): ?array
-    // {
-    //     if ($month < 1 || $month > 12) {
-    //         throw new InvalidArgumentException('Month must be between 1 and 12');
-    //     }
-
-    //     $year = $year ?? (int) date('Y');
-
-    //     $stmt = $this->pdo->prepare(
-    //         "SELECT m.id, m.title, m.description, m.release_year, m.duration_minutes,
-    //                 m.poster_path, m.banner_path,
-    //                 ROUND(AVG(all_r.score), 1) AS avg_rating,
-    //                 AVG(month_r.score)          AS avg_score,
-    //                 COUNT(month_r.id)           AS rating_count
-    //          FROM movies m
-    //          JOIN ratings month_r ON month_r.movie_id = m.id
-    //               AND MONTH(month_r.created_at) = :month
-    //               AND YEAR(month_r.created_at)  = :year
-    //          LEFT JOIN ratings all_r ON all_r.movie_id = m.id
-    //          GROUP BY m.id, m.title, m.description, m.release_year, m.duration_minutes, m.poster_path, m.banner_path
-    //          ORDER BY avg_score DESC, rating_count DESC, m.id ASC
-    //          LIMIT 1"
-    //     );
-
-    //     $stmt->execute([':month' => $month, ':year' => $year]);
-    //     $movie = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    //     // Fallback: best movie of all time if no ratings this month
-    //     if (!$movie) {
-    //         $fallback = $this->pdo->query(
-    //             "SELECT m.id, m.title, m.description, m.release_year, m.duration_minutes,
-    //                     m.poster_path, m.banner_path,
-    //                     ROUND(AVG(r.score), 1) AS avg_rating,
-    //                     AVG(r.score)            AS avg_score,
-    //                     COUNT(r.id)             AS rating_count
-    //              FROM movies m
-    //              JOIN ratings r ON r.movie_id = m.id
-    //              GROUP BY m.id, m.title, m.description, m.release_year, m.duration_minutes, m.poster_path, m.banner_path
-    //              ORDER BY avg_score DESC, rating_count DESC, m.id ASC
-    //              LIMIT 1"
-    //         );
-    //         $movie = $fallback->fetch(PDO::FETCH_ASSOC) ?: null;
-    //     }
-
-    //     return $movie ?: null;
-    // }
 
     public function getMovieById(int $id): ?array
     {
